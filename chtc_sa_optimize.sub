@@ -1,0 +1,38 @@
+#!/bin/bash
+# Get Docker
+universe = docker
+docker_image = romerolab/chtc:nn4dms_train_v7_Jan5
+
+# set the log, error and output files 
+log = log_files/sa_optimize_$(Cluster)_$(Process).log.txt
+error = log_files/sa_optimize_$(Cluster)_$(Process).err.txt
+output = log_files/sa_optimize_$(Cluster)_$(Process).out.txt
+
+#notification = Always
+#notify_user = # can add your email here
+
+# set the executable to run
+executable = chtc_sa_optimize.sh
+arguments = $(Cluster) $(Process) $(config)
+
+transfer_input_files = sa_optimize_files.tar.gz, chtc_sa_optimize.sh
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+
+request_cpus = 1
+
+# Can use GPUs to decrease runtime
+#request_gpus = 1
+#Requirements = (Target.CUDADriverVersion >= 10.0)
+#+GPUJobLength = "medium"
+#+wantGPULab = true
+
+# select some memory and disk space
+request_memory = 10GB
+#request_memory = 10GB
+#request_disk = 100 MB
+request_disk = 500MB
+
+# Tell HTCondor to run 1 instances of our job:
+queue config from configs/configs_names.txt
+#queue 1
