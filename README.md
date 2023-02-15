@@ -1,30 +1,71 @@
-# in_silico_opt
-This repo is still a work in progress. Feel free to take scripts from here as you need them until we get a finalized version.
+# In_silico_optimization 
 
-Below is a description of each of the files.
+METL implementation of in_silico_opt heavily adapted from
+Sarah and Chase intial implementation. 
 
-- Makefile - contains commands to run simulated annealing on chtc. You will need to modify what is included in the make sa_optimize_files.tar.gz command to include the files and directories relevant to your code. Example is below
-- design_tools.py - contains majority of simulated annealing code
-- chtc_sa_optimize.sub - chtc submit file to run chtc_sa_optimize.sh for each config in the configs/configs_names.txt file
-- chtc_sa_optimize.sh - bash script run on chtc that takes config files as passes config file
-- run_sa.py - python script to run simulated annealing from a config file
-- seq2fitness_tools_cnn_0.py - an example of how to set up the seq2fitness file with the init function (called before SA is run in run_sa.py) and the seq2fitness function that given a sequence returns a number
-- configs - contains an example for how to set up a config file used in run_sa.py
-- output - a directory where your output files should be sent to (this is setup in your config file)
+## Installation 
 
-## Example of how to run/what to change:
-- Create your own seq2fitness_tools python script
-    - import relevant packages
-    - write the init function (initialize any models/variables required for you seq2fitness function, in particular use self.your_var to keep track of relevant variables)
-    - write the seq2fitness function (take the sequence that is passed and return a number corresponding to the fitness, use self.your_var to reference any variables that you created in the init function)
-- Create an chtc-compatible environment for your seq2fitness tools
-    - be sure to add matplotlib, numpy, and yaml in your environment
-    - add this environment to the .sub file in place of the docker image
-- Create configs for each of your SA runs (can use a python script to do this)
-    - add the name of the config file(s) to the configs_names.txt file, each on separate lines
-- Update the Makefile to include any files and directories to your .tar.gz file that you will submit to chtc
-- Submit your job to CHTC
-  - from the in_silico_opt folder run the make command: <code>make</code>
-  - This will automatically generate/update the .tar.gz file for submission and submit all of the jobs from the configs/configs_names.txt file
+Run the follow command from the terminal. 
 
+```conda create --name in_silico_opt python numpy pandas```
+
+```conda activate in_silico_opt```
+
+```pip install tqdm```
+
+## Overview 
+
+- Step 1 : Specify a sequence to fitness function
+which takes as an arugment a string of the mutation,
+along with wild type. The file must be named the same
+as the function name (seq2fitness_example below).
+```python
+# seq2fitness_example.py
+import numpy as np
+def seq2fitness_example(mutant:str,WT): 
+    '''
+    my example sequence to fitness function
+    :param mutant: string of mutants, "," as specified by arguments "E3K,G102S"
+    :param WT: Wildtype sequence 
+    :return: a scalar value of fitness
+    '''
+    
+    # note your split character must align with that specified in args document
+    return np.random.poisson(len(mutant.split(',')))
+```
+
+- Step 2: From inside the in_silico_opt directory run```src/run.py``` 
+with proper command line arguments. 
+The three required arguments are the wildtype sequence (```--wild_type```), along 
+with the sequence to fitness filename (```--seq2fitness_filename```), and the unique
+identifier for the run (```--uuid```). These are the only required inputs, 
+many other input parameters can be specified depending on your specifications (i.e amino acid
+constraints ```--AA_constraints``` or specified sampler from random, nested sampling and simulated annealing [default], ```--sampler```). For 
+help on all the inputs run ```python src/run.py -h``` in the ```in_silico_opt```
+directory, or look to ```src/run.py```. 
+
+Input arguments can come from the command line or a document.
+
+#### Specify args from command line:  
+```shell
+python src/run.py --seq2fitness_file seq2fitness_example
+                  --uuid example_run 
+                  --wild_type aypsvbetbUI 
+```
+Note in this circumstance residues UI would be held constant as they 
+are capital. 
+
+#### Specify args from document: 
+
+```shell
+python src/run.py @args/example_args.txt
+```
+
+## CHTC
+Still to do. Look to htcondor/run.sh, htcondor/submit.sub
+
+## Ensembling
+Still to do! 
+
+ 
 

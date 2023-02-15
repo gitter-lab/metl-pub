@@ -1,0 +1,8 @@
+--seq2fitness_file
+seq2fitness_example
+--uuid
+first_run
+--wild_type
+aypsvbetbUI
+--split_char
+,

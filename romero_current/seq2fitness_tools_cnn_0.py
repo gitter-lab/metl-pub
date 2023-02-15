@@ -19,6 +19,7 @@ class seq2fitness_handler:
 
         self.model = inference.restore_sess_from_pb(self.model_path)
 
+
     def seq2fitness(self, seq):
         encoded_seq = encoding.encode(encoding="one_hot,aa_index", char_seqs=[seq])
         return inference.run_inference(encoded_data=encoded_seq, sess=self.model)

@@ -4,40 +4,6 @@ import matplotlib.pyplot as plt
 
 # TODO: decide if index from 0 or 1 for mutations
 
-
-def generate_all_point_mutants(seq, AA_options=None):
-    """Generate all possible single point mutants of a sequence
-    Arguments:
-        seq: starting seq
-        AA_options: list of amino acid options at each position, if none defaults to all 20 AAs (default None)
-    """
-    all_mutants = []
-    for pos in range(len(seq)):
-        for aa in AA_options[pos]:
-            if seq[pos] != aa:  # not mutating to self
-                mut = seq[pos] + str(pos) + aa
-                all_mutants.append(mut)
-    return all_mutants
-
-
-def mut2seq(seq, mutations):
-    """Create mutations in form of A94T to seq
-    Arguments:
-        seq: starting seq
-        mutations: list of mutations in form of ["A94T", "H99R"] or "A94T,H99R"
-    """
-    mutant_seq = seq
-    if type(mutations) is str:
-        mutations = mutations.split(',')
-    for mut in mutations:
-        pos = int(mut[1:-1])
-        newAA = mut[-1]
-        if mut[0] != seq[pos]:
-            print('Warning: WT residue in mutation %s does not match WT sequence' % mut)
-        mutant_seq = mutant_seq[:pos] + newAA + mutant_seq[pos + 1:]
-    return mutant_seq
-
-
 def find_top_n_mutations(seq2fitness, all_mutants, WT, n=10):
     # evaluate fitness of all single mutants from WT
     single_mut_fitness = []
@@ -59,32 +25,16 @@ def find_top_n_mutations(seq2fitness, all_mutants, WT, n=10):
     return topn
 
 
-def generate_random_mut(WT, AA_options, num_mut):
-    # Want to make the probability of getting any mutation the same:
-    AA_mut_options = []
-    for WT_AA, AA_options_pos in zip(WT, AA_options):
-        if WT_AA in AA_options_pos:
-            options = list(AA_options_pos).copy()
-            options.remove(WT_AA)
-            AA_mut_options.append(options)
-    mutations = []
 
-    for n in range(num_mut):
 
-        num_mut_pos = sum([len(row) for row in AA_mut_options])
-        prob_each_pos = [len(row) / num_mut_pos for row in AA_mut_options]
-        rand_num = random.random()
-        for i, prob_pos in enumerate(prob_each_pos):
-            rand_num -= prob_pos
-            if rand_num <= 0:
-                mutations.append(WT[i] + str(i) + random.choice(AA_mut_options[i]))
-                AA_mut_options.pop(i)
-                AA_mut_options.insert(i, [])
-                break
-    return ','.join(mutations)
+
+
 
 
 class SA_optimizer:
+    """
+    SA_optimizer  -- Simulated Annealing Optimizer
+    """
     def __init__(self, seq2fitness, WT, AA_options, num_mut, mut_rate=1, nsteps=1000, cool_sched='log'):
         self.seq2fitness = seq2fitness
         self.WT = WT
@@ -94,8 +44,10 @@ class SA_optimizer:
         self.nsteps = nsteps
         self.cool_sched = cool_sched
 
-    def optimize(self, start_mut=None, seed=0):
-        random.seed(0)
+    def optimize(self, start_mut=None, seed=None):
+        # bug for random seed removed
+        if seed is not None:
+           random.seed(seed)
 
         if start_mut is None:
             start_mut = generate_random_mut(self.WT, self.AA_options, self.num_mut).split(',')
@@ -111,8 +63,10 @@ class SA_optimizer:
         seq = mut2seq(self.WT, start_mut)
         fit = self.seq2fitness(seq)
         current_seq = [start_mut, fit]
-        self.best_seq = [start_mut, fit]
-        self.fitness_trajectory = [[fit, fit]]  # fitness_trajectory = [best_fit, current_fit]
+        best_seq = [start_mut, fit]
+
+        fitness_trajectory = [[':'.join(start_mut), fit, ':'.join(start_mut),fit]]
+        # fitness_trajectory = [best_mut, best_fit, current_mut, current_fit]
 
         # for loop over decreasing temperatures
         for T in temp:
@@ -138,11 +92,12 @@ class SA_optimizer:
             mutant = tuple([n[1] for n in sorted([(int(m[1:-1]), m) for m in mutant])])
 
             # evaluate fitness of new mutant
-            fitness = self.seq2fitness(mut2seq(self.WT, mutant))
+            seq_eval =mut2seq(self.WT, mutant)
+            fitness = self.seq2fitness(seq_eval)
 
             # if mutant is better than best sequence, reassign best sequence
-            if fitness > self.best_seq[1]:
-                self.best_seq = [mutant, fitness]
+            if fitness > best_seq[1]:
+                best_seq = [mutant, fitness]
                 # print('fitness = %0.2f, mutations = %s' % (fitness,''.join([i.ljust(5) for i in mutant])))
 
             # Simulated annealing acceptance criteria:
@@ -154,21 +109,11 @@ class SA_optimizer:
                 current_seq = [mutant, fitness]
 
             # store the current fitness
-            self.fitness_trajectory.append([self.best_seq[1], current_seq[1]])
+            fitness_trajectory.append([best_seq[1], current_seq[1]])
 
-        return self.best_seq  # returns [best_mut, best_fit]
+        return fitness_trajectory  # returns [best_mut, best_fit]
 
-    def plot_trajectory(self, savefig_name=None):
-        plt.plot(np.array(self.fitness_trajectory)[:, 0])
-        plt.plot(np.array(self.fitness_trajectory)[:, 1])
-        plt.xlabel('Step')
-        plt.ylabel('Fitness')
-        plt.legend(['Best mut found', 'Current mut'])
-        if savefig_name is None:
-            plt.show()
-        else:
-            plt.savefig(savefig_name)
-        plt.close()
+
 
 
 class Hill_climber():
@@ -227,15 +172,3 @@ class Hill_climber():
                 best_best_muts = best_muts.copy()
         self.best_seq = [best_best_muts[0], best_best_muts[1]]
         return self.best_seq
-
-    def plot_trajectory(self, savefig_name=None):
-        for traj in self.fitness_trajectory:
-            plt.plot(traj)
-        plt.xlabel('Step')
-        plt.ylabel('Fitness')
-        plt.legend(['Restart ' + str(i) for i in range(self.num_restarts)])
-        if savefig_name is None:
-            plt.show()
-            plt.close()
-        else:
-            plt.savefig(savefig_name)

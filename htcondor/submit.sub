@@ -1,12 +1,13 @@
 #!/bin/bash
-# Get Docker
-universe = docker
-docker_image = romerolab/chtc:nn4dms_train_v7_Jan5
 
-# set the log, error and output files 
+
+
+universe = vanilla
+
 log = log_files/sa_optimize_$(Cluster)_$(Process).log.txt
 error = log_files/sa_optimize_$(Cluster)_$(Process).err.txt
 output = log_files/sa_optimize_$(Cluster)_$(Process).out.txt
+
 
 #notification = Always
 #notify_user = # can add your email here
@@ -15,7 +16,7 @@ output = log_files/sa_optimize_$(Cluster)_$(Process).out.txt
 executable = chtc_sa_optimize.sh
 arguments = $(Cluster) $(Process) $(config)
 
-transfer_input_files = sa_optimize_files.tar.gz, chtc_sa_optimize.sh
+transfer_input_files =
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 
@@ -27,11 +28,19 @@ request_cpus = 1
 #+GPUJobLength = "medium"
 #+wantGPULab = true
 
+accounting_group=BMI_Gitter
 # select some memory and disk space
 request_memory = 10GB
-#request_memory = 10GB
-#request_disk = 100 MB
-request_disk = 500MB
+request_disk = 5GB
+
+
+
+environment = "CLUSTER=$(Cluster) PROCESS=$(cProcess)"
+
+#RUNNINGON=$$(Name) RUN_SCRIPT=$ENV(RUN_SCRIPT) GITHUB_TAG=$ENV(GITHUB_TAG) WANDB_API_KEY=$ENV(WANDB_API_KEY)"
+
+
+
 
 # Tell HTCondor to run 1 instances of our job:
 queue config from configs/configs_names.txt
