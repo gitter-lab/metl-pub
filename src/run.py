@@ -2,7 +2,6 @@ import argparse
 import importlib
 import os
 import numpy as np
-
 from utils import AAs
 from sampler import *
 
@@ -41,14 +40,13 @@ def main():
 
 
     parser.add_argument('--T0',type=float,
-                        help='initial temperature choice, if ',default=10)
+                        help='initial temperature choice, if ',default=3)
 
 
     parser.add_argument('--Tstop',type=float,
-                         help='the stopping temperature',default=1e-9)
+                         help='the stopping temperature',default=-5)
 
-
-
+        
     # need to figure out a way to implement schedule stuff here.
 
     parser.add_argument('--temperature_schedule',type=str,
@@ -93,6 +91,13 @@ def main():
 
 
     parsed_args = parser.parse_args()
+
+
+
+    print(f'======starting {parsed_args.sampler} ======')
+    for key, value in parsed_args.__dict__.items():
+        print(key,":", value)
+    print('')
 
     ############### refactor parameters  ######################
     # first define the AA_options and the WT sequence as capital letters
@@ -159,7 +164,7 @@ def main():
 
     elif sampler == 'random':
         print('no support currently for a changing mutation schedule')
-        mutation_schedule = np.ones((len(parsed_args.steps),))*parsed_args.number_mutations
+        mutation_schedule = np.ones((int(parsed_args.steps),))*parsed_args.number_mutations
     elif sampler == 'nested':
         raise Exception('no support for nested sampling yet, sorry!')
     else:
@@ -185,7 +190,6 @@ def main():
 
 
 
-
-
 if __name__ == '__main__':
+    # argument_getter()
     main()

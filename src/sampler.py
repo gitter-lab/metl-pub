@@ -113,12 +113,14 @@ class RandomSampler(BaseSampler):
         # todo: how to handle start mutation here
         all_mutants=self.generate_all_point_mutants()
         M,F =[],[]
-        for num_mut in mutation_schedule:
-            mutant= self.generate_mutant(all_mutants,num_mut)
+        for num_mut in tqdm(mutation_schedule):
+            mutant= self.generate_mutant(all_mutants,int(num_mut))
             fitness = self.seq2fitness(mutant)
+            M.append(mutant)
             F.append(fitness)
-
-        return pd.DataFrame(data=[M,F],columns=['mutant','fitness'])
+        df=pd.DataFrame(data=[M,F]).T
+        df.columns=['current_mutant','current_fitness']
+        return df
 
 class SimulatedAnnealing(BaseSampler):
     def __init__(self, seq2fitness, AA_options, WT, seed,split_char,**kwargs):

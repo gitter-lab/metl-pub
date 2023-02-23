@@ -6,15 +6,15 @@ import torch
 wt = "SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQ" \
      "HDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKN" \
      "GIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"
-model, data_encoder = metl.get_from_uuid("8gMPQJy4")
+model, data_encoder = metl.get_from_uuid("bcEoygY3")
 def seq2fitness(mutants=None,WT=wt):
     # deal with edge case
     if type(mutants)==str:
         mutants=[mutants]
     if mutants==None:
-        mutants = ["E3K,G102S",
-                    "T36P,S203T,K207R",
-                    "V10A,D19G,F25S,E113V"]
+        mutants = ["E3K,G102S"]
+                    # "T36P,S203T,K207R",
+                    # "V10A,D19G,F25S,E113V"]
     # some example GFP variants to compute the scores for
 
     encoded_variants = data_encoder.encode_variants(WT, mutants)

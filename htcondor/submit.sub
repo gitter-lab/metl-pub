@@ -43,5 +43,5 @@ environment = "CLUSTER=$(Cluster) PROCESS=$(cProcess)"
 
 
 # Tell HTCondor to run 1 instances of our job:
-queue config from configs/configs_names.txt
+# queue config from configs/configs_names.txt
 #queue 1

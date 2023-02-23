@@ -12,7 +12,8 @@ echo "$config"
 echo "Launching $RUN_SCRIPT"
 python3 "$RUN_SCRIPT" @"args/${PROCESS}.txt" --cluster="$CLUSTER" --process="$PROCESS"
 
-### --github_tag="$GITHUB_TAG"
+
+
 
 # make sure output files
 # tar -czf "$Cluster"_"$Process".tar.gz ./output

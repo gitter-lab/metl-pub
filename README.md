@@ -11,6 +11,8 @@ Run the follow command from the terminal.
 
 ```conda activate in_silico_opt```
 
+```conda install -c anaconda seaborn=>0.11.*```
+
 ```pip install tqdm```
 
 ## Overview 
