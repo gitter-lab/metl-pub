@@ -4,9 +4,9 @@
 
 universe = vanilla
 
-log = log_files/sa_optimize_$(Cluster)_$(Process).log.txt
-error = log_files/sa_optimize_$(Cluster)_$(Process).err.txt
-output = log_files/sa_optimize_$(Cluster)_$(Process).out.txt
+log = logs/sa_optimize_$(Cluster)_$(Process).log.txt
+error = logs/sa_optimize_$(Cluster)_$(Process).err.txt
+output = logs/sa_optimize_$(Cluster)_$(Process).out.txt
 
 
 #notification = Always

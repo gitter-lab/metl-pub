@@ -10,7 +10,7 @@ sample_dict = {'sim_anneal': SimulatedAnnealing, 'random':RandomSampler,'nested'
 def main():
 
     parser = argparse.ArgumentParser(
-        description='python run.py seq2fitness.py AbrwbV \n ',
+        description='python src/run.py seq2fitness.py AbrwbV \n ',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         fromfile_prefix_chars="@")
 
@@ -177,7 +177,7 @@ def main():
     # todo: no support for batch evaluation yet
     df= Sampler.walk(mutation_schedule=mutation_schedule)
 
-    df.to_csv(os.path.join(parsed_args.results_dir,f'{parsed_args.uuid}.csv'))
+    df.to_csv(os.path.join(parsed_args.results_dir,f'{parsed_args.uuid}.csv'),index=False)
 
 
 

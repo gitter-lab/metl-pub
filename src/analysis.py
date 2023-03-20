@@ -91,10 +91,31 @@ def get_starting_temperature(uuid,WT_fitness=0):
 
     print(f"delta E = {df['current_fitness'].min()-WT_fitness }")
 
+def compare_plots(uuids):
+    for uuid in uuids:
+        df=pd.read_csv(os.path.join('results',f"{uuid}.csv"))
+        print(uuid, ',max value')
+        print(df['current_fitness'].max())
+        print('')
+def compare_to_original(uuids=None):
+    df_original = pd.read_csv(os.path.join('data', 'avgfp.tsv'), sep='\t')
+    fig,ax=plt.subplots(1,1)
+    ax=df_original['score'].hist(alpha=0.4,bins=50,ax=ax)
+    fig.show()
+
 
 
 if __name__ == '__main__':
-    analyze_run('practice_run_6')
-    violin_plots_across_runs(['practice_run_3','practice_run_4','practice_run_5','practice_run_6'],
-                             ['linear','log','random','log_random_startup'])
+    compare_to_original()
+    # analyze_run('practice_run_9')
+    # violin_plots_across_runs(['practice_run_7','practice_run_8'],tags=['log-no warmup','log-with warmup'])
+    # compare_plots(['practice_run_5','practice_run_8','practice_run_9'])
+    # 'practice_run_5','practice_run_6'],
+    #                          ['linear','log' 'random','log_random_startup'])
     # get_starting_temperature('practice_run_5')
+
+
+    # df_original.to_csv(os.path.join('data','avgfp.csv'))
+
+
+    print('stop')
