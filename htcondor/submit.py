@@ -102,6 +102,6 @@ def generate_args(savepath,**kwargs):
 
 if __name__ == '__main__':
     generate_args(os.path.join('args','small_scale_chtc'),uuid=np.arange(10),seed=np.arange(10),
-                    steps=1000,result_dir=os.path.join('results','small_scale_chtc'))
+                    steps=1000,results_dir='.')
 
 
