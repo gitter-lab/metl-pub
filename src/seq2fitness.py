@@ -1,12 +1,11 @@
 import metl
 import torch
-
-
+import os
 # the GFP wild-type sequence
 wt = "SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQ" \
      "HDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKN" \
      "GIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"
-model, data_encoder = metl.get_from_checkpoint("YoQkzoLD.pt")
+model, data_encoder = metl.get_from_checkpoint(os.path.join("src","YoQkzoLD.pt"))
 def seq2fitness(mutants=None,WT=wt):
     # deal with edge case
     if type(mutants)==str:
