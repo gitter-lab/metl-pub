@@ -24,6 +24,7 @@ def seq2fitness(mutants=None,WT=wt):
     with torch.no_grad():
         predictions = model(torch.tensor(encoded_variants))
 
+    # just return back a single scalar fitness prediction
     return float(predictions[0][0])
 
 if __name__ == '__main__':
