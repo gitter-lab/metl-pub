@@ -3,10 +3,17 @@ import uuid
 import os
 import numpy as np
 import pandas as pd
-inputs= ['seq2fitness_file', 'uuid', 'wild_type',
-         'sampler', 'steps', 'T0', 'Tstop',
-         'temperature_schedule', 'number_mutations',
-         'mutation_rate', 'seed', 'starting_sequence',
+inputs= ['seq2fitness_file',
+         'uuid',
+         'wild_type',
+         'sampler',
+         'steps',
+         'T0',
+         'Tstop',
+         'temperature_schedule',
+         'number_mutations',
+         'mutation_rate',
+         'seed', 'starting_sequence',
          'parallel', 'AA_constraints', 'results_dir',
          'split_char']
 
@@ -101,7 +108,13 @@ def generate_args(savepath,**kwargs):
             f.write(d)
 
 if __name__ == '__main__':
-    generate_args(os.path.join('args','small_scale_chtc'),uuid=np.arange(10),seed=np.arange(10),
-                    steps=1000,results_dir='.')
+    generate_args(os.path.join('args','3d_10k_run'),
+                  uuid= np.arange(10000) ,
+                  seed=np.arange(10000),
+                  seq2fitness_file = 'seq2fitness_3d',
+                  number_mutations = 5,
+                  mutation_rate=2,
+                  steps=10000,
+                  results_dir='.')
 
 
