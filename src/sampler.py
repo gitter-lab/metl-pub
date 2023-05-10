@@ -131,6 +131,7 @@ class SimulatedAnnealing(BaseSampler):
 
     def walk(self, mutation_schedule, start_mut=None):
         all_mutation_library = self.generate_all_point_mutants()
+
         if start_mut is None:
             start_mut = self.generate_mutant(all_mutation_library,self.number_mutations)
 
@@ -145,15 +146,17 @@ class SimulatedAnnealing(BaseSampler):
         N,M,F,BM,BF= [len(start_mut.split(self.split_char))],[start_mut],[fit],[start_mut],[fit]
 
         for T in tqdm(mutation_schedule):
-
+            # start with the current fitness values
             current_mutant = M[-1]
             current_fitness = F[-1]
 
+            # sample mutation rate from poisson distribution
             n = self.rng.poisson(self.mutation_rate)
             n = min([self.number_mutations - 1, max([1, n])])  # bound n within the range [1,number_mututations-1]
             N.append(n)
             reduced_mutant= self.rng.choice(current_mutant.split(self.split_char),
                                             size=self.number_mutations-n,replace=False)
+
 
             temp_mutant = self.generate_mutant(all_mutants=all_mutation_library,
                                                number_of_mutations=self.number_mutations,
@@ -176,7 +179,7 @@ class SimulatedAnnealing(BaseSampler):
             # Simulated annealing acceptance criteria:
             #   If mutant is better than current seq, move to mutant seq
             #   If mutant is worse than current seq, move to mutant with some
-            #   exponentially decreasing probability with delta_F
+            #   exponentially decreasing probability
             delta_F = temp_fitness - F[-1]  # new seq is worse if delta_F is neg.
             # print(np.exp(min([0,delta_F/(10*T)])))
             if np.exp(min([0, delta_F / (T)])) > self.rng.random():

@@ -74,13 +74,13 @@ def main():
                              'note that this then evaluates the sequences on the fitness function '
                              'on batch mode',default=1)
 
-    parser.add_argument('--AA_constraints', nargs='+',
-                        help='--AA_constraints 3GH 4CT '
-                             '\n excludes GH at residue 3 (zero indexing) and '
-                             '\n CT at residue 4 (zero indexing). '
+    parser.add_argument('--AA_constraints', type=str,
+                        help='--AA_constraints A3C,A3B,Q4R,Q6T'
+                             '\n exculdes mutations A3C,A3B,Q4R and Q6T (zero indexing)'
+                             '\n from being allowed in the simulated annealing run. '
+                             '\n (Note you can have repeated exclusionary mutations e.g. A3C,A3C)'
                              'If you would like to leave an amino acid constant (either its wild type or another)'
-                             'at a residue look to the wild_type argument and use an upper case letter. ',
-                        type=list,default=[])
+                             'at a residue look to the wild_type argument and use an upper case letter. ',default='')
 
     parser.add_argument('--save_final',type=str,
                         help='--save_final True just to save the final output as opposed to the sequences '
@@ -92,7 +92,6 @@ def main():
 
     parser.add_argument('--split_char',help='--split_char between mutant sequences i.e. "T67:U5Y", '
                                             'default is ","',type=str, default=",")
-
 
     parsed_args = parser.parse_args()
 
@@ -107,11 +106,20 @@ def main():
     # first define the AA_options and the WT sequence as capital letters
     AA_options = []
     WT = ''
+
     AA_contraints = parsed_args.AA_constraints
     AA_constraint_dict = {}
-    for element in AA_contraints:
-        assert len(element) > 1, 'check AA_constraints'
-        AA_constraint_dict[int(element[0])] = "".join(element[1:])
+    for variant in AA_contraints.split(','):
+        wt, pos, mut = variant[0], int(variant[1:-1]), variant[-1]
+        assert  wt == parsed_args.wild_type.upper()[pos] , 'wild type of mutant doesnt match \
+        given wildtype, try checking your indexing.'
+
+        if AA_constraint_dict.get(pos) is None:  # if position has not been added
+            AA_constraint_dict[pos] = mut
+        elif mut in AA_constraint_dict[pos]:  # if mutant already contained in position , pass if it is
+            pass
+        else:  # add the mutant to the already created position
+            AA_constraint_dict[pos] = AA_constraint_dict[pos] + mut
 
     for i, wt_aa in enumerate(parsed_args.wild_type):
         if wt_aa.islower():
