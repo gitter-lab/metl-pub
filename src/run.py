@@ -78,9 +78,13 @@ def main():
                         help='--AA_constraints 3GH 4CT '
                              '\n excludes GH at residue 3 (zero indexing) and '
                              '\n CT at residue 4 (zero indexing). '
-                             'If you would like to leave an amino acid constant '
+                             'If you would like to leave an amino acid constant (either its wild type or another)'
                              'at a residue look to the wild_type argument and use an upper case letter. ',
                         type=list,default=[])
+
+    parser.add_argument('--save_final',type=str,
+                        help='--save_final True just to save the final output as opposed to the sequences '
+                             'from all of the steps.', default='False')
 
     parser.add_argument('--results_dir',
                         help='results directory',
@@ -177,6 +181,8 @@ def main():
     # todo: no support for batch evaluation yet
     df= Sampler.walk(mutation_schedule=mutation_schedule)
 
+    if eval(parsed_args.save_final):
+        df=df.tail(1)
     df.to_csv(os.path.join(parsed_args.results_dir,f'{parsed_args.uuid}.csv'),index=False)
 
 

@@ -15,7 +15,7 @@ inputs= ['seq2fitness_file',
          'mutation_rate',
          'seed', 'starting_sequence',
          'parallel', 'AA_constraints', 'results_dir',
-         'split_char']
+         'split_char', 'save_final']
 
 defaults = ['seq2fitness',
             str(uuid.uuid4()),
@@ -32,7 +32,8 @@ defaults = ['seq2fitness',
             1,
             None,
             'results',
-            ','
+            ',',
+            'False'
             ]
 
 
@@ -108,13 +109,14 @@ def generate_args(savepath,**kwargs):
             f.write(d)
 
 if __name__ == '__main__':
-    generate_args(os.path.join('args','3d_10k_run'),
-                  uuid= np.arange(10000) ,
+    generate_args(os.path.join('args','3d_5_mutant_10k_run'),
+                  uuid= np.arange(10000),
                   seed=np.arange(10000),
                   seq2fitness_file = 'seq2fitness_3d',
-                  number_mutations = 5,
+                  Tstop=-2,
+                  number_mutations =5,
                   mutation_rate=2,
                   steps=10000,
+                  save_final='False',
                   results_dir='.')
-
 
