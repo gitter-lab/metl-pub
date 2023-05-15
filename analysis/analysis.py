@@ -11,13 +11,15 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 import seaborn as sns
 import matplotlib.cm as cm
-from utils import onehot,variant2sequence
+from src.utils import onehot,variant2sequence
+from unit_tests.preprocessing_gfp_run import preprocess_train_variants_for_sim_anneal
 import torchinfo
 import torchextractor as tx
 import metl
 import torch
-
-
+from tqdm import tqdm
+import seaborn as sns
+from scipy.spatial.distance import cdist
 
 def random_turnup():
     '''
@@ -31,8 +33,6 @@ def random_turnup():
     Just submitted a run on a random sampler for 1-51 mutations.
     Going to take the results of this and plot them as the average prediction maybe?
     Or maybe increments of 10 as a violin plot. Or both.
-
-
     :return:
     '''
 
@@ -68,13 +68,13 @@ def random_turnup():
 
 
 
-def preprocess_10k_run():
+def preprocess_10k_run(run_saved_directory,top_sequences_directory):
     D=[]
-    for i in np.arange(10000):
-        df= pd.read_csv(os.path.join('results','10k_full_base_run',f"{i}.csv"))
+    for i in tqdm(np.arange(10000)):
+        df= pd.read_csv(os.path.join(run_saved_directory,f"{i}.csv"))
         D.append(df[df.index == 9999])
     df= pd.concat(D)
-    df.to_csv(os.path.join('results','10k_full_base_run','top_sequences.csv'))
+    df.to_csv(os.path.join(top_sequences_directory,'top_sequences.csv'))
 def distribution_of_best_scoring(dir='10k_full_base_run'):
     df=pd.read_csv(os.path.join('results', dir,'top_sequences.csv'))
     fig,ax= plt.subplots(1,1)
@@ -104,20 +104,87 @@ def distribution_with_PCA_onehot(dir='10k_full_base_run'):
                  f'pca.explained_variance_ratio_ :{pca.explained_variance_ratio_}')
     plt.colorbar()
     plt.savefig(os.path.join('results','10k_full_base_run','best_sequence_pca.png'))
-def kmeans_clustering_onehot(dir='10k_full_base_run'):
-    df = pd.read_csv(os.path.join('results',dir, 'top_sequences.csv'))
 
+
+def kmeans_clustering_onehot(top_sequences_path,save_path,n_clusters=5,random_state=0):
+    df = pd.read_csv(top_sequences_path)
     df['best_sequence'] = df['best_mutant'].apply(lambda x: variant2sequence(x))
     df['onehot'] = df['best_sequence'].apply(lambda x: onehot(x).flatten())
 
     X = np.vstack(df['onehot'].to_numpy())
 
-    kmeans= KMeans(n_clusters=5,random_state=0).fit(X)
-    #todo: start clustering these mutations, maybe get the intertia,
-    # and sizes of each cluster
+    #1 - complete the kmeans clustering
+    kmeans= KMeans(n_clusters=n_clusters,random_state=random_state).fit(X)
     arr = kmeans.labels_
-    for nb in np.arange(5):
-        print(sum(arr[arr==nb]))
+
+    stats_df = pd.DataFrame(columns=['cluster','nb_points','inertia','median point','in_training_set',
+                                     'train_variants'],
+                            index=np.arange(n_clusters))
+
+
+    training_variants = preprocess_train_variants_for_sim_anneal()
+    for nb in np.arange(n_clusters):
+
+        filtered_df = df[arr==nb]
+        filtered_X = X[arr==nb]
+        dist_matrix = cdist(filtered_X, filtered_X, metric='euclidean')
+
+        # sum up the pairwise distances
+        sum_dist= np.sum(dist_matrix, axis=0)
+
+        # agrument of the median point
+        argmed = np.argmin(np.abs(sum_dist - np.median(sum_dist)))
+
+        # get the median variant
+        median_variant = filtered_df.iloc[argmed]['best_mutant']
+
+        # find the similarity of this point to the training set.
+        count = 0
+        tv =[]
+        for v in median_variant.split(','):
+            if v in training_variants:
+                tv.append(v)
+                count+=1
+
+        stats_df.iloc[nb] = [nb,len(sum_dist),np.sum(sum_dist),median_variant,count,tv]
+        # Create figure and axes objects
+        fig, ax = plt.subplots()
+
+        # Set plot title and axis labels
+        ax.set_title(f"cluster: {nb}, nb_points:{len(sum_dist)} , \n"
+                     f"inertia (total sum) : {np.sum(sum_dist)}\n,"
+                     f"median point: {median_variant},\n"
+                     f"in_training_set : {count},\n"
+                     f"train_variants : {tv}")
+
+        ax.set_xlabel("pairwise distance")
+        ax.set_ylabel("frequency")
+
+        # Set number of bins for histogram
+        num_bins = 200
+
+        # Plot histogram of data with specified number of bins
+        n, bins, patches = ax.hist(sum_dist, bins=num_bins, color="#6495ED", alpha=0.5)
+
+        # Customize appearance of histogram
+        for i in range(len(patches)):
+            # Set edge color and line width of each bar in histogram
+            patches[i].set_edgecolor("#000080")
+            patches[i].set_linewidth(0.5)
+
+        # Add vertical line for mean value
+        mean = np.median(sum_dist)
+        ax.axvline(mean, color="#FFA500", linestyle="--", linewidth=1.5)
+
+        # Add legend for mean value
+        ax.legend([f"Mean Value = {mean:.2f}"], loc="upper right")
+
+        # Save plot as image file
+        plt.tight_layout()
+        fig.savefig(os.path.join(save_path,f'cluster_{nb}.png'), dpi=300)
+
+    # stats_df.hist()
+    # plt.savefig(os.path.join(save_path,f'hist.png'))
 
 
 def threeD_vs_oneD(nb_mutation):
@@ -387,13 +454,185 @@ def compare_to_original(uuids=None):
     fig.show()
 
 
+def best_and_current_averages(nb_mutations,run_saved_directory,save_directory):
+    D=[]
+    for i in tqdm(np.arange(10000)):
+        sub_df= pd.read_csv(os.path.join(run_saved_directory,f"{i}.csv"))
+        D.append(sub_df[['current_fitness','best_fitness']])
+
+    df=pd.concat(D)
+    df_avg = df.groupby(level=0).mean()
+    df_std = df.groupby(level=0).std()
+    df_avg = df_avg.rename(columns={'current_fitness':'current_avg',"best_fitness":'best_avg'})
+    df_std = df_std.rename(columns={'current_fitness':'current_std','best_fitness':'best_std'})
+
+
+    sns.set_palette("colorblind")
+
+    fig, ax = plt.subplots(1, 1)
+    fig.set_size_inches(8, 6)
+
+    x = np.arange(10001)  # 10001 to include
+    ax.plot(x, df_avg['current_avg'], alpha=0.5, label='Current Average')
+    ax.plot(x, df_avg['best_avg'], alpha=0.5, label='Best Average')
+    ax.fill_between(x, df_avg['current_avg'] - df_std['current_std'], df_avg['current_avg'] + df_std['current_std'],
+                    color='grey', alpha=0.1)
+
+    ax.fill_between(x, df_avg['best_avg'] - df_std['best_std'], df_avg['best_avg'] + df_std['best_std'],
+                    color='grey', alpha=0.1)
+
+    ax.set_xlabel('Iterations', fontsize=14)
+    ax.set_ylabel('Fitness', fontsize=14)
+    ax.set_title(f"{nb_mutations} Mutants Fitness Trend", fontsize=16)
+    ax.grid(False)
+    fig.legend(loc='center right', fontsize=12)
+    fig.tight_layout()
+
+    fig.savefig(os.path.join(save_directory, 'fitness_trend_fig.png'), dpi=300)
+
+
+
+def count_number_of_training_variants(mutants,training_variants):
+    count=0
+    for mutant in mutants.split(','):
+        if mutant in training_variants:
+            count+=1
+    return count
+
+def mutations_in_training_data(nb_mutations,run_saved_directory,save_directory):
+    training_variants= preprocess_train_variants_for_sim_anneal()
+
+    D = []
+    for i in tqdm(np.arange(10000)):
+        sub_df = pd.read_csv(os.path.join(run_saved_directory, f"{i}.csv"))
+        sub_df['current_train_mutants']= sub_df['current_mutant'].apply(lambda x: count_number_of_training_variants(x,training_variants))
+        sub_df['best_train_mutants'] = sub_df['best_mutant'].apply(
+            lambda x: count_number_of_training_variants(x, training_variants))
+        D.append(sub_df[['current_train_mutants', 'best_train_mutants']])
+
+    df=pd.concat(D)
+    df_avg = df.groupby(level=0).mean()
+    df_std = df.groupby(level=0).std()
+    df_avg = df_avg.rename(columns={'current_train_mutants':'current_avg',"best_train_mutants":'best_avg'})
+    df_std = df_std.rename(columns={'current_train_mutants':'current_std','best_train_mutants':'best_std'})
+
+    sns.set_palette("colorblind")
+
+    fig, ax = plt.subplots(1, 1)
+    fig.set_size_inches(8, 6)
+
+    x = np.arange(10001)  # 10001 to include
+    ax.plot(x, df_avg['current_avg'], alpha=0.5, label='Current Average')
+    ax.plot(x, df_avg['best_avg'], alpha=0.5, label='Best Average')
+    ax.fill_between(x, df_avg['current_avg'] - df_std['current_std'], df_avg['current_avg'] + df_std['current_std'],
+                    color='grey', alpha=0.1)
+
+    ax.fill_between(x, df_avg['best_avg'] - df_std['best_std'], df_avg['best_avg'] + df_std['best_std'],
+                    color='grey', alpha=0.1)
+
+    ax.set_xlabel('Iterations', fontsize=14)
+    ax.set_ylabel('Number of Mutations in Training Set', fontsize=14)
+    ax.set_title(f"{nb_mutations} Mutants Similarity to Training Set Trend", fontsize=16)
+    ax.grid(False)
+    fig.legend(loc='center left' ,fontsize=12)
+    fig.tight_layout()
+
+    fig.savefig(os.path.join(save_directory, 'training_set_trend_fig.png'), dpi=300)
+
+def acceptance_ratio(run_saved_directory,save_directory,nb_steps_to_average_over):
+    # todo: code doesn't have an abstarction for the number of files in the directory.
+    #       should be user input
+    # define acceptance ratio as every 10, then 100 steps
+
+    # loop over each dataset then calculate the acceptance ratio
+    # as number of times that current_seq changes/nb_steps_to_average_over
+    # put that list of acceptance ratio into a dataframe
+    D = []
+    for i in tqdm(np.arange(10000)):
+        sub_df = pd.read_csv(os.path.join(run_saved_directory, f"{i}.csv"))
+        # remove first element to give good division factors, yes
+        # this will give slightly different results
+        series = sub_df['current_mutant'][1:]
+
+        # Set the increment value
+        increment = nb_steps_to_average_over
+
+        # Calculate the number of groups
+        num_groups = len(series) // increment
+
+        # Reshape the Series into a 2D array
+        reshaped_series = series.values[:num_groups * increment].reshape(num_groups, increment)
+
+        # Calculate the frequency of element changes
+        change_frequency = (reshaped_series[:, :-1] != reshaped_series[:, 1:]).mean(axis=1)
+
+        # append to global dataframe to do std and mean later
+        D.append(pd.DataFrame(data=change_frequency,columns=['change_frequency']))
+
+    df = pd.concat(D)
+    # average all the acceptance ratios
+    df_avg = df.groupby(level=0).mean()
+    df_std = df.groupby(level=0).std()
+    df_avg = df_avg.rename(columns={'change_frequency':'change_avg'})
+    df_std = df_std.rename(columns={'change_frequency':'change_std'})
+
+    # make a fancy plot out of the average acceptance ratio along with
+    # error bars for the standard deviation of the acceptance ratio
+    x = np.arange(len(df_avg))
+
+    sns.set_palette("colorblind")
+
+    fig, ax = plt.subplots(1, 1)
+    fig.set_size_inches(8, 6)
+
+    ax.plot(x, df_avg['change_avg'], alpha=0.5, label='Acceptance Ratio')
+    ax.fill_between(x, df_avg['change_avg'] - df_std['change_std'],
+                    df_avg['change_avg'] + df_std['change_std'],
+                    color='grey', alpha=0.1)
+
+    ax.set_xlabel(f'Acceptance Ratio every {nb_steps_to_average_over} steps', fontsize=14)
+    ax.set_ylabel('Acceptance Ratio', fontsize=14)
+    ax.set_title(f"Acceptance Ratio of Mutants Averaged Over {nb_steps_to_average_over} Steps\n"
+                 f"for 10,000 simulations", fontsize=16)
+    ax.grid(False)
+    # fig.legend(loc ='center right',fontsize=12)
+
+    fig.tight_layout()
+    fig.savefig(os.path.join(save_directory, f'acceptance_ratio_{nb_steps_to_average_over}.png'), dpi=300)
 
 if __name__ == '__main__':
-    # random_turnup()
-    for nb in [5,10,15]:
-        threeD_vs_oneD(nb)
+    nb_mutations= 5
+    #1)
+    # preprocess_10k_run(run_saved_directory=os.path.join('results','3d_10_mutant_10k_run'),
+    #                   top_sequences_directory=os.path.join('results','3d_10_mutant_10k_run','analysis'))
+
+    #2) nb_mutations= 5
+    # best_and_current_averages(nb_mutations=nb_mutations , run_saved_directory= os.path.join('results',f'3d_10k_run'),
+    #                    save_directory=os.path.join('results',f'3d_10k_run','analysis'))
+
+    #3)
+
+    # mutations_in_training_data(nb_mutations=nb_mutations, run_saved_directory=os.path.join('results', f'3d_{nb_mutations}_mutant_10k_run'),
+    #                     save_directory=os.path.join('results',f'3d_{nb_mutations}_mutant_10k_run','analysis'))
+
+
+    #4)
+    # kmeans_clustering_onehot(top_sequences_path=os.path.join('results', f'3d_{nb_mutations}_mutant_10k_run',
+    #                                                          'analysis','top_sequences.csv'),
+    #                          save_path=os.path.join('results', f'3d_{nb_mutations}_mutant_10k_run',
+    #                                                 'analysis'))
+
+
+    #5)
+    acceptance_ratio(run_saved_directory=os.path.join('results',f'3d_{nb_mutations}_mutant_10k_run',),
+                     save_directory=os.path.join('results',f'3d_{nb_mutations}_mutant_10k_run','analysis'),
+                     nb_steps_to_average_over=10)
+
+    # # random_turnup()
+    # for nb in [5,10,15]:
+    #     threeD_vs_oneD(nb)
     # extrapolation_1d_model_sim_anneal()
-    # kmeans_clustering_onehot()
+
     # save_embeddings()
     # compare_to_original()
     # preprocess_10k_run()

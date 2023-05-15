@@ -124,19 +124,17 @@ def preprocess_train_variants_for_sim_anneal():
         assert mutant in all_mutants, 'why would this not be true'
     return ','.join(unique_mutants)
 
-
-
 if __name__ == '__main__':
     AA_constraints = preprocess_train_variants_for_sim_anneal()
-    generate_args(os.path.join('args'),
-                  uuid= 'testing_constraints',
-                  seed=1,
+    generate_args(os.path.join('args','3d_rejection_10_mutant_10k_run'),
+                  uuid= np.arange(10000),
+                  seed=np.arange(10000),
                   seq2fitness_file = 'seq2fitness_3d',
                   Tstop=-2,
-                  number_mutations =5,
+                  number_mutations =10,
                   mutation_rate=2,
-                  steps=1000,
+                  steps=10000,
                   AA_constraints= AA_constraints,
-                  save_final='False',
-                  results_dir='./results/')
+                  save_final='True',
+                  results_dir='.')
 
