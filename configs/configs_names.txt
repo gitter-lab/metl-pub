@@ -1,1 +1,0 @@
-config_num_mut_5_nstep_50000_sim_200_seq2fitness_tools_cnn_0.txt
