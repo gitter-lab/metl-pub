@@ -3,6 +3,7 @@ import uuid
 import os
 import numpy as np
 import pandas as pd
+from unit_tests.preprocessing_gfp_run import preprocess_train_variants_for_sim_anneal,preprocess_only_allow_training
 inputs= ['seq2fitness_file',
          'uuid',
          'wild_type',
@@ -109,29 +110,17 @@ def generate_args(savepath,**kwargs):
             f.write(d)
 
 
-def preprocess_train_variants_for_sim_anneal():
-    # this function preprocesses the training variants for simulated annealing
-    # it excludes certain
-    train_idx = np.loadtxt(os.path.join('data','train_64_variants_avgfp.txt'),dtype=int)
-    df= pd.read_csv(os.path.join('data','avgfp.csv'))
-
-    train_df = df.iloc[train_idx]
-
-    rejections = ",".join(train_df['variant'])
-    all_mutants=  rejections.split(',')
-    unique_mutants  =np.unique(all_mutants)
-    for mutant in  unique_mutants:
-        assert mutant in all_mutants, 'why would this not be true'
-    return ','.join(unique_mutants)
 
 if __name__ == '__main__':
-    AA_constraints = preprocess_train_variants_for_sim_anneal()
-    generate_args(os.path.join('args','3d_rejection_10_mutant_10k_run'),
+    # AA_constraints = preprocess_train_variants_for_sim_anneal()
+
+    AA_constraints = preprocess_only_allow_training()
+    generate_args(os.path.join('args','3d_only_train_5_mutant_10k_run'),
                   uuid= np.arange(10000),
                   seed=np.arange(10000),
                   seq2fitness_file = 'seq2fitness_3d',
                   Tstop=-2,
-                  number_mutations =10,
+                  number_mutations =5,
                   mutation_rate=2,
                   steps=10000,
                   AA_constraints= AA_constraints,

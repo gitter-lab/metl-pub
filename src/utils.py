@@ -1,7 +1,7 @@
 import numpy as np
 AAs = 'ACDEFGHIKLMNPQRSTVWY'
 
-CHARS = ["*", "A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
+CHARS = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
          "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
 C2I_MAPPING = {c: i for i, c in enumerate(CHARS)}
 av_gfp_WT= 'SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLT' \
@@ -27,3 +27,13 @@ def onehot(sequence):
     for i,s in enumerate(sequence):
         X[i][C2I_MAPPING[s]]= 1
     return X
+
+def onehot2sequence(onehot):
+    reshaped = onehot.reshape(-1, 20)
+    sequence  = ''
+    for row in reshaped:
+        sequence+= CHARS[np.argmax(row)]
+    return sequence
+
+
+
