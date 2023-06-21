@@ -57,7 +57,9 @@ def res_distribution_comparison(variants_list,labels,save_dir=None):
     for label, variants in zip(labels, variants_list):
         res_dist[label]= residue_distribution(variants)
 
-    ax = res_dist.plot.bar(ax=ax,stacked=True, alpha=0.5)
+    res_dist_no_labels = res_dist.copy()
+    res_dist_no_labels[res_dist_no_labels != 0] = 1
+    ax = res_dist_no_labels.plot.bar(ax=ax,stacked=True, alpha=0.5)
     ax.set_title('Histogram of Residues for \n '
                  f'{labels} datasets')
     ax.set_ylabel('Count')
@@ -67,6 +69,39 @@ def res_distribution_comparison(variants_list,labels,save_dir=None):
     x_ticks = range(0, len(res_dist.index), 5)
     x_tick_labels = res_dist.index[x_ticks]
     ax.set_xticks(x_ticks, x_tick_labels)
+
+    # labels2patches = []
+    # for row in res_dist.iterrows():
+    #     empty=True
+    #     for column in res_dist.columns:
+    #         element = row[1][column]
+    #         if element!=0:
+    #             labels2patches.append(element)
+    #             empty=False
+    #     if empty:
+    #         labels2patches.append(0)
+
+    y_offset =-10
+    for bar,label2patch in zip(ax.patches,res_dist.values.T.flatten()):
+        if label2patch!=0:
+            ax.text(
+                # Put the text in the middle of each bar. get_x returns the start
+                # so we add half the width to get to the middle.
+                bar.get_x() + bar.get_width() / 2,
+                # Vertically, add the height of the bar to the start of the bar,
+                # along with the offset.
+                bar.get_height()/2 + bar.get_y(),
+                # This is actual value we'll show.
+                label2patch,
+                # Center the labels and style them a bit.
+                ha='center',
+                weight='bold',
+                size=8
+            )
+
+
+
+
     fig.savefig(os.path.join(save_dir, f'res_dist_{labels}.png'), dpi=300,
                 bbox_inches='tight')
 

@@ -58,7 +58,8 @@ def residue_distribution(variants,res_range=None,save_dir=None,suffix=None):
     for variant in variants:
         for mutant in variant.split(','):
             idx =int(mutant[1:-1])
-            train_series[idx] = train_series[idx] + 1
+            aa_mutant = mutant[-1:]
+            train_series[idx] = aa_mutant
 
     if save_dir is not None:
         # Creating the bar plot
@@ -67,6 +68,7 @@ def residue_distribution(variants,res_range=None,save_dir=None,suffix=None):
         ax.set_xlabel('Residue')
         ax.set_ylabel('Occurences in Training Set')
         ax.set_title(f'Residue Distribution')
+
 
         filename = 'res_dist'
         if suffix is not None:
@@ -87,10 +89,10 @@ def sort_variant(variant):
     return ','.join(sorted(variant.split(','),key=lambda x:order_mutant(x)))
 def unique_sequences(variants,other_unique=2,save_dir=None,suffix=None):
     '''
-    finds the unique sequences then does value_counts() and plots the distribution or a bar plot
-    depending on the number of found unique sequences.
+    finds the unique sequences then does value_counts() and makes a pie plot of the distribution
+
     :param variants: input variants, can contain many mutants per variant
-    :param other_percentage: the percentage in which to group all variants into the same bin
+    :param other_unique: the minimum number of variants to give it it's own pie slice outside of other
     :param save_dir:  directory to save a figure of pie chart of unique sequences (if None given no figure will save)
     :param suffix: trailing character on the file name  (unique_variants_dist_{suffix}.png)
     :return: the value counts data without filter from the clustering from the other percentage
@@ -127,7 +129,7 @@ def unique_sequences(variants,other_unique=2,save_dir=None,suffix=None):
         fig,ax= plt.subplots(figsize=(12, 8))
         # Plot the pie chart
         ax=data.plot(kind='pie', autopct='%1.1f%%',ax=ax)
-        ax.set_title('Percentage of Unique Variants')
+        ax.set_title(f'Number of Variants:{len(variants)}')
         ax.set_axis_off()
         # Display the chart
         filename = 'unique_variants_dist'
