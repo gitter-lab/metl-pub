@@ -1,4 +1,6 @@
 # Data and scripts for the METL manuscript
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10819536.svg)](https://zenodo.org/doi/10.5281/zenodo.10819536)
+
 This repository contains supplementary datasets and scripts for the METL manuscript.
 For more information, please see the [metl](https://github.com/gitter-lab/metl) repository and our manuscript:
 
