@@ -1,0 +1,64 @@
+avgfp:
+  ds_name: avgfp
+  ds_dir: data/dms_data/avgfp
+  ds_fn: data/dms_data/avgfp/avgfp.tsv
+  wt_aa: SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK
+  wt_ofs: 0
+  pdb_fn: 1gfl_cm.pdb
+  rosettafy_pdb_fn: 1gfl_cm.pdb
+dlg4-2022-binding:
+  ds_name: dlg4-2022-binding
+  ds_dir: data/dms_data/dlg4-2022-binding
+  ds_fn: data/dms_data/dlg4-2022-binding/dlg4-2022-binding.tsv
+  wt_aa: PRRIVIHRGSTGLGFNIVGGEDGEGIFISFILAGGPADLSGELRKGDQILSVNGVDLRNASHEQAAIALKNAGQTVTIIAQYKP
+  wt_ofs: 0
+  pdb_fn: 6qji_p_trunc_2022.pdb
+  rosettafy_pdb_fn: 6qji_p.pdb
+gb1:
+  ds_name: gb1
+  ds_dir: data/dms_data/gb1
+  ds_fn: data/dms_data/gb1/gb1.tsv
+  wt_aa: MQYKLILNGKTLKGETTTEAVDAATAEKVFKQYANDNGVDGEWTYDDATKTFTVTE
+  wt_ofs: 0
+  pdb_fn: 2qmt_p.pdb
+  rosettafy_pdb_fn: 2qmt_p.pdb
+grb2-abundance:
+  ds_name: grb2-abundance
+  ds_dir: data/dms_data/grb2-abundance
+  ds_fn: data/dms_data/grb2-abundance/grb2-abundance.tsv
+  wt_aa: TYVQALFDFDPQEDGELGFRRGDFIHVMDNSDPNWWKGACHGQTGMFPRNYVTPVN
+  wt_ofs: 0
+  pdb_fn: AF-P62993-F1-model_v4_trunc_p.pdb
+  rosettafy_pdb_fn: AF-P62993-F1-model_v4_trunc_p.pdb
+grb2-binding:
+  ds_name: grb2-binding
+  ds_dir: data/dms_data/grb2-binding
+  ds_fn: data/dms_data/grb2-binding/grb2-binding.tsv
+  wt_aa: TYVQALFDFDPQEDGELGFRRGDFIHVMDNSDPNWWKGACHGQTGMFPRNYVTPVN
+  wt_ofs: 0
+  pdb_fn: AF-P62993-F1-model_v4_trunc_p.pdb
+  rosettafy_pdb_fn: AF-P62993-F1-model_v4_trunc_p.pdb
+pab1:
+  ds_name: pab1
+  ds_dir: data/dms_data/pab1
+  ds_fn: data/dms_data/pab1/pab1.tsv
+  wt_aa: GNIFIKNLHPDIDNKALYDTFSVFGDILSSKIATDENGKSKGFGFVHFEEEGAAKEAIDALNGMLLNGQEIYVAP
+  wt_ofs: 0
+  pdb_fn: pab1_cm.pdb
+  rosettafy_pdb_fn: pab1_cm.pdb
+tem-1:
+  ds_name: tem-1
+  ds_dir: data/dms_data/tem-1
+  ds_fn: data/dms_data/tem-1/tem-1.tsv
+  wt_aa: MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRVDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPAAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW
+  wt_ofs: 0
+  pdb_fn: AF-Q6SJ61-F1-model_v4_p.pdb
+  rosettafy_pdb_fn: AF-Q6SJ61-F1-model_v4_p.pdb
+ube4b:
+  ds_name: ube4b
+  ds_dir: data/dms_data/ube4b
+  ds_fn: data/dms_data/ube4b/ube4b.tsv
+  wt_aa: IEKFKLLAEKVEEIVAKNARAEIDYSDAPDEFRDPLMDTLMTDPVRLPSGTVMDRSIILRHLLNSPTDPFNRQMLTESMLEPVPELKEQIQAWMREKQSSDH
+  wt_ofs: 0
+  pdb_fn: ube4b_cm.pdb
+  rosettafy_pdb_fn: ube4b_cm.pdb
