@@ -1,9 +1,5 @@
 # Rosetta data
 
->**Note**  
-> Work in progress 
-
-
 We provide raw Rosetta data as well as processed Rosetta datasets that have duplicates, outliers, and NaN values removed. The data is hosted on Zenodo. 
 
 ## Raw Rosetta data
@@ -24,6 +20,23 @@ There are separate databases for each of the local datasets as well as the globa
 
 Note the GB1-IgG binding raw data only contains the binding scores, whereas the processed GB1-IgG binding dataset listed below contains both the binding and standard scores. 
 The processed dataset was created by combining the raw GB1-IgG binding data with the raw GB1 standard data.
+
+The script [parse_rosetta_data.py](https://github.com/gitter-lab/metl/blob/main/code/parse_rosetta_data.py) and notebook [generate_rosetta_dataset.ipynb](https://github.com/gitter-lab/metl/blob/main/notebooks/generate_rosetta_dataset.ipynb), which are located in the [metl](https://github.com/gitter-lab/metl) repository, show how to process these raw databases into the processed datasets listed below.
+
+If needed, you can load this data directly into a dataframe with the Pandas [pd.read_sql()](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_sql.html) function.
+However, we found the built-in Pandas function to be slow with large databases. Instead, we recommend the [ConnectorX](https://github.com/sfu-db/connector-x) package to speed up loading.
+
+```python
+import connectorx as cx
+
+db_fn = "path/to/database.db"
+conn = f"sqlite://{db_fn}"
+
+query = "SELECT * FROM `variant`"
+result = cx.read_sql(conn, query)
+```
+
+Additionally, the HDF5 format is substantially faster to load and can be used with Pandas. If you need to regularly load these raw databases, it may be worthwhile to convert them to HDF5. 
 
 ## Processed Rosetta datasets
 Each processed Rosetta dataset has its own directory containing the following:
