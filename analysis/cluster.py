@@ -2,193 +2,29 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from unit_tests.preprocessing_gfp_run import preprocess_train_variants_for_sim_anneal
 from tqdm import tqdm
-from comparison_stats import aa_distribution_comparison,res_distribution_comparison
-from scipy.spatial.distance import cdist
-import os
-from sklearn.cluster import KMeans
-from src.utils import onehot,variant2sequence,av_gfp_WT,onehot2sequence
-from sklearn.cluster import DBSCAN
-import time
-from Bio.Align import substitution_matrices
-from Bio import Align
-from sklearn.cluster import AgglomerativeClustering
-from sklearn_extra.cluster import KMedoids
-from scipy.cluster import hierarchy
-from scipy.cluster.hierarchy import dendrogram
-from general_stats import sort_variant,unique_sequences
+import time,os
 import sys
+# increase  recursion limit for increasing the size of the dendrogram
 sys.setrecursionlimit(10000)
 
-from sklearn.metrics.pairwise import pairwise_distances
-from sklearn.cluster import AffinityPropagation
 
-# from general_stats import sort_variant
-BLOSUM62 = substitution_matrices.load("BLOSUM62")
-BLOSUM62_min= np.min(BLOSUM62)
-BLOSUM62_max= np.max(BLOSUM62)
-BLOSUM62_AA_libary=  list(BLOSUM62.alphabet)
-BLOSUMAA2Idx_MAPPING = {c: i for i, c in enumerate(BLOSUM62_AA_libary)}
-blosum62 = substitution_matrices.load("BLOSUM62")
-
-# create a pure numpy blosum62 matrix
-# this is necessary for the vectorized function which
-blosum62_arr = np.zeros((len(blosum62.alphabet), len(blosum62.alphabet)))
-for i, aa1 in enumerate(blosum62.alphabet):
-    for j, aa2 in enumerate(blosum62.alphabet):
-        blosum62_arr[i, j] = blosum62[aa1, aa2]
-
-# create a map from amino acid --> index in blosum matrix
-aa_to_int_map = {aa: idx for idx, aa in enumerate(blosum62.alphabet)}
+# clustering imports
+from sklearn.cluster import KMeans
+from sklearn.cluster import AgglomerativeClustering
+from scipy.spatial.distance import cdist
 
 
-# a function to convert aa sequences to integer sequences
-def aa_seq_to_int_array(seq):
-    return np.array([aa_to_int_map[aa] for aa in seq], dtype=int)
-# blosum similarity, vectorized with numpy
-def vectorized_blosum_similarity(seq1, seq2, blosum_matrix):
-    return blosum_matrix[np.array(seq1,dtype=int), np.array(seq2,dtype=int)].sum()
+from src.utils import onehot,variant2sequence,av_gfp_WT
+from preprocessing_gfp_run import preprocess_train_variants_for_sim_anneal
+from comparison_stats import aa_distribution_comparison,res_distribution_comparison
+from general_stats import sort_variant,unique_sequences
 
-def onehot2index(onehot_encoding):
-    idxs= []
-    for row in onehot_encoding.reshape(-1,20):
-        idxs.append(np.argmax(row))
-    return np.array(idxs)
-
-def blosum62_seq_similarity(seq1_onehot,seq2_onehot):
-    seq1, seq2 = seq1_onehot.reshape(-1,len(BLOSUM62_AA_libary)), seq2_onehot.reshape(-1,len(BLOSUM62_AA_libary)).T
-    score=np.sum(seq1 *( BLOSUM62 @ seq2).T)
-    return score
-
-def blosum62_seq_similarity_strings(seq1,seq2):
-    tot =0
-    for aa1,aa2 in zip(seq1,seq2):
-        tot+= BLOSUM62[aa1,aa2]
-    return tot
-
-def blosum_onehot(sequence):
-    '''
-    different alphabet for the blosum62 matrix
-    :param sequence:
-    :return:
-    '''
-    X = np.zeros((len(sequence), len(BLOSUM62_AA_libary)))
-    for i,s in enumerate(sequence):
-        X[i][BLOSUMAA2Idx_MAPPING[s]] = 1
-    return X
+from distances import compute_distances,calculated_dist_matrix_onehot,calculate_normalized_dist_matrix
 
 
-
-def unit_test_blosum62_seq_similarity(top_sequences_path,save_path):
-    df = pd.read_csv(top_sequences_path)
-    df['best_sequence'] = df['best_mutant'].apply(lambda x: variant2sequence(x))
-    df['onehot'] = df['best_sequence'].apply(lambda x: blosum_onehot(x).flatten())
-    q= BLOSUM62_AA_libary
-    p  = av_gfp_WT
-
-    seq1=  df.iloc[0]['best_sequence']
-    seq2 = df.iloc[1]['best_sequence']
-    onehot1= blosum_onehot(seq1).flatten()
-    onehot2 = blosum_onehot(seq2).flatten()
-
-    print(blosum62_seq_similarity(onehot1,onehot2))
-    print(blosum62_seq_similarity_strings(seq1,seq2))
-
-    seq1_int = aa_seq_to_int_array(seq1)
-    seq2_int = aa_seq_to_int_array(seq2)
-
-    print('sam: ',vectorized_blosum_similarity(seq1_int, seq2_int, blosum62_arr))
-
-    aligner = Align.PairwiseAligner()
-    aligner.substitution_matrix = substitution_matrices.load("BLOSUM62")
-    aligner.mode = 'local'
-    aligner.gap_score = -np.inf
-
-    A ,B,At,Bt,Ct= [],[],[],[],[]
-    for i in tqdm(np.arange(len(df))):
-        seq1 = df.iloc[0]['best_sequence']
-        seq2 = df.iloc[i]['best_sequence']
-
-        seq1_int = aa_seq_to_int_array(seq1)
-        seq2_int = aa_seq_to_int_array(seq2)
-
-        seq1_onehot=  df.iloc[0]['onehot']
-        seq2_onehot = df.iloc[i]['onehot']
-        start= time.time()
-        aligner.align(seq1,seq2)
-        middle1 =time.time()
-        val1= blosum62_seq_similarity(seq1_onehot,seq2_onehot)
-        middle2 =time.time()
-        val2= vectorized_blosum_similarity(seq1_int,seq2_int,blosum62_arr)
-        middle3 = time.time()
-        val3= blosum62_seq_similarity_strings(seq1,seq2)
-        end=time.time()
-
-        assert val3==val2==val1,'all these values must be equal'
-        At.append(middle2-middle1)
-        Bt.append(middle3-middle2)
-        Ct.append(end-middle3)
-
-
-
-    fig,ax= plt.subplots()
-
-    ax.scatter(A,B,s=0.1)
-    ax.set_xlabel('alignment score')
-    ax.set_title('seq similarity score vs alignment score-- GAP \n'
-                 'comparison to first sequence')
-    ax.set_ylabel('seq similarity')
-
-    fig.savefig(os.path.join(save_path,'alignment_vs_seq_similarity_gap.png'))
-
-def calculated_dist_matrix_onehot(top_sequences_path,save_path):
-    df = pd.read_csv(top_sequences_path)
-    df['best_sequence'] = df['best_mutant'].apply(lambda x: variant2sequence(x))
-    df['onehot'] = df['best_sequence'].apply(lambda x: onehot(x).flatten())
-    X = np.vstack(df['onehot'].to_numpy())
-    start= time.time()
-    dist_matrix_onehot = cdist(X, X, metric='hamming')
-    stop  = time.time()
-    print(stop-start)
-    np.save(os.path.join(save_path,'onehot_dist_matrix.npy'),dist_matrix_onehot)
-
-
-def calculate_normalized_dist_matrix(dist_matrix):
-    WT_BLOSUM = blosum62_seq_similarity_strings(
-        'SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK',
-        'SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK')
-    calculated_max = (BLOSUM62_max - 4) * 10 + WT_BLOSUM
-    calculated_min = 0
-    normalized_dist_matrix = 1 - ((dist_matrix - calculated_min) / (calculated_max - calculated_min))
-    return normalized_dist_matrix
-def similarity_matrix_histograms(matrix_path,onehot_matrix_path,top_sequences_path,save_path):
-    df = pd.read_csv(top_sequences_path)
-    n_mutants = len(df.iloc[0]['best_mutant'].split(','))
-    dist_matrix = np.load(matrix_path)
-
-    normalized_dist_matrix= calculate_normalized_dist_matrix(dist_matrix)
-
-    fig, ax = plt.subplots()
-    ax.hist(normalized_dist_matrix.reshape(-1), bins=200, alpha=0.5)
-    ax.set_title('distance matrix histogram')
-    ax.set_xlabel('distance')
-    ax.set_ylabel('count')
-    fig.savefig(os.path.join(save_path, 'dist_matrix_full_distribution.png'))
-
-
-    onehot_dist_matrix = np.load(onehot_matrix_path)*len(av_gfp_WT)*20
-    fig, ax = plt.subplots()
-    ax.hist(onehot_dist_matrix.reshape(-1), bins=20, alpha=0.5)
-    ax.set_title('distance matrix histogram hamming distance full distribution')
-    ax.set_xlabel('distance')
-    ax.set_ylabel('count')
-    fig.savefig(os.path.join(save_path, 'onehot_dist_matrix_full_distribution.png'))
-
-
-
-
-
+# plot dendrogram
+from scipy.cluster.hierarchy import dendrogram
 
 
 def clustering_precomputed(matrix_path,
@@ -201,10 +37,26 @@ def clustering_precomputed(matrix_path,
                            percentage2include=0.15,
                            greedy_down_sample= None,
                            threshold=None,
-                           n= 5000):
+                           n= 5000,
+                           include_dendrogram = False ):
 
-  
-
+    '''
+    the code to run
+    :param matrix_path:
+    :param top_sequences_path:
+    :param onehot_matrix_path:
+    :param clustering_object:
+    :param save_path:
+    :param n_clusters:
+    :param down_sample:
+    :param percentage2include:
+    :param greedy_down_sample: int, number of sequences to choose , must be less than or equal to
+                                    the number of unique integers in labels array
+    :param threshold: number of sequences that must be in a clsuter to be considered
+    :param n: number of top sequences to include
+    :param include_dendrogram:boolean to make dendrogram
+    :return:
+    '''
 
     df = pd.read_csv(top_sequences_path)[:n]
     df['best_mutant'] = df['best_mutant'].apply(lambda x:sort_variant(x))
@@ -217,7 +69,6 @@ def clustering_precomputed(matrix_path,
 
     labels=clustering_object.fit_predict(normalized_dist_matrix)
 
-    # labels= clustering_object.predict(normalized_dist_matrix)
     assert n_clusters >= np.unique(labels).shape[0]
 
 
@@ -227,23 +78,20 @@ def clustering_precomputed(matrix_path,
                      labels=labels, n_clusters=n_clusters, save_path=save_path,
                      percentage2include=percentage2include)
 
-    fig,ax=plt.subplots(figsize=(24,16))
+    if include_dendrogram:
+        fig,ax=plt.subplots(figsize=(24,16))
 
-    # plot_dendrogram(clustering_object, ax=ax)
-    ax.set_title(f'n:{n} \n'
-                 f' {save_path}',fontsize=30)
-    fig.savefig(os.path.join(save_path,'dendrogram_full.png'))
+
+        plot_dendrogram(clustering_object, ax=ax)
+        ax.set_title(f'n:{n} \n'
+                     f' {save_path}',fontsize=30)
+        fig.savefig(os.path.join(save_path,'dendrogram_full.png'))
 
     #down sample
     print('doing standard down sample')
     if down_sample is not None:
+        # down sample based on 5 most populous clusters
         cluster_idx=np.array(pd.Series(labels).value_counts().index[:down_sample])
-
-
-        # filter=np.isin(labels,cluster_idx )
-        # df_downsampled= df[filter]
-        # labels_downsampled= labels[filter]
-        # normalized_dist_matrix_down_sample =normalized_dist_matrix[filter][:,filter]
         analyze_clusters(df=df.copy(), global_dist_matrix=normalized_dist_matrix.copy(),
                          labels=labels.copy(), n_clusters=down_sample,
                          save_path=os.path.join(save_path,f'down_sample_{down_sample}'),
@@ -251,6 +99,8 @@ def clustering_precomputed(matrix_path,
                          cluster_indexes=cluster_idx)
     print('doing greedy down sample')
     if greedy_down_sample is not None:
+        # down sample by looking for representative sequences which
+        # are most diverse from already chosen sequences
         assert threshold is not None ,'threshold must be a positive integer '
         greedy_sequence_choice_algorithm(representative_variants=representative_sequences,
                                          global_dist_matrix=normalized_dist_matrix,
@@ -259,25 +109,6 @@ def clustering_precomputed(matrix_path,
                                          labels=labels,
                                          threshold=threshold,
                                          greedy_down_sample=greedy_down_sample)
-
-
-    # if unique_down_sample is not None:
-    #     cluster_idx = np.array(pd.Series(labels).value_counts().index[:down_sample])
-
-
-def dendrogram_clustering_practice():
-    ytdist = np.array([662., 877., 255., 412., 996., 295., 468., 268.,
-                       400., 754., 564., 138., 219., 869., 669.])
-    Z = hierarchy.linkage(ytdist, 'single')
-    plt.figure()
-    dn = hierarchy.dendrogram(Z)
-    plt.show()
-
-
-
-
-
-
 
 
 def dist_matrix_analysis(matrix_path,save_path):
@@ -297,39 +128,29 @@ def dist_matrix_analysis(matrix_path,save_path):
     fig.savefig(os.path.join(save_path, 'blosum62_diagonal_distances.png'))
 
 
-def compute_distances(top_sequences_path,save_path):
-    df = pd.read_csv(top_sequences_path)
-    df['best_sequence'] = df['best_mutant'].apply(lambda x: variant2sequence(x))
-    df['blosum_integer'] = df['best_sequence'].apply(lambda x: aa_seq_to_int_array(x))
-    X = np.vstack(df['blosum_integer'].to_numpy())
-    dist_matrix = pairwise_distances(X,metric=lambda u,v: vectorized_blosum_similarity(u,v,blosum_matrix=blosum62_arr))
-    np.save(os.path.join(save_path,'vectorized_blosum_similarity_distance_matrix.npy'),dist_matrix)
-
-
-
-
-def dbscan_clustering_precomputed(matrix_path,save_path,eps=10,min_samples=10):
-    dist_matrix = np.load(matrix_path)
-    dbscan = DBSCAN(eps=eps, min_samples=min_samples, metric='precomputed')
-    labels = dbscan.fit_predict(dist_matrix)
-
-
-
-def dbscan_clustering_one(top_sequences_path,save_path,eps=90,min_samples=5):
-    df = pd.read_csv(top_sequences_path)
-    df['best_sequence'] = df['best_mutant'].apply(lambda x: variant2sequence(x))
-    df['onehot'] = df['best_sequence'].apply(lambda x: onehot(x).flatten())
-    df['aa_idx'] = df['onehot'].apply(lambda x: onehot2index(x))
-    X = np.vstack(df['aa_idx'].to_numpy())
-
-
-
-
-def kmeans_clustering_onehot(top_sequences_path,save_path,onehot_matrix_path,
-                             n_clusters=5,random_state=0,
-                             down_sample=None,percentage2include=0.15,
-                            threshold =100, greedy_down_sample=None
+def kmeans_clustering_onehot(top_sequences_path,
+                             save_path,
+                             onehot_matrix_path,
+                             n_clusters=5,
+                             random_state=0,
+                             down_sample=None,
+                             percentage2include=0.15,
+                             threshold =100,
+                             greedy_down_sample=None
                              ):
+    '''
+
+    :param top_sequences_path:
+    :param save_path:
+    :param onehot_matrix_path:
+    :param n_clusters:
+    :param random_state:
+    :param down_sample:
+    :param percentage2include:
+    :param threshold:
+    :param greedy_down_sample:
+    :return:
+    '''
 
     df = pd.read_csv(top_sequences_path)
     df['best_mutant'] = df['best_mutant'].apply(lambda x: sort_variant(x))
@@ -361,7 +182,7 @@ def kmeans_clustering_onehot(top_sequences_path,save_path,onehot_matrix_path,
                      percentage2include=percentage2include)
 
 
-    print('doing greedy down sample')
+    print('starting greedy down sample')
     if greedy_down_sample is not None:
         assert threshold is not None, 'threshold must be a positive integer '
         greedy_sequence_choice_algorithm(representative_variants=representative_sequences,
@@ -373,31 +194,36 @@ def kmeans_clustering_onehot(top_sequences_path,save_path,onehot_matrix_path,
                                          threshold=threshold,
                                          greedy_down_sample=greedy_down_sample)
 
-    # if down_sample is not None:
-    #     cluster_idx=np.array(pd.Series(labels).value_counts().index[:down_sample])
-    #     filter=np.isin(labels,cluster_idx)
-    #     df_downsampled= df[filter]
-    #     labels_downsampled= labels[filter]
-    #     X_down_sample =X[filter,:]
-    #     analyze_clusters(df=df_downsampled, X=X_down_sample,
-    #                      labels=labels_downsampled, n_clusters=down_sample,
-    #                      save_path=os.path.join(save_path,f'down_sample_{down_sample}'),
-    #                      isX_dist_matrix=False,
-    #                      cluster_indexes=cluster_idx)
 
-def analyze_clusters(df,labels,n_clusters,save_path,
+    print('starting standard down sample')
+    if down_sample is not None:
+        cluster_idx=np.array(pd.Series(labels).value_counts().index[:down_sample])
+        analyze_clusters(df=df.copy(), global_dist_matrix=global_dist_matrix,
+                         labels=labels.copy(), n_clusters=down_sample,
+                         save_path=os.path.join(save_path, f'down_sample_{down_sample}'),
+                         global_onehot_dist_matrix=onehot_dist_matrix.copy(),
+                         cluster_indexes=cluster_idx)
+
+def analyze_clusters(df,
+                     labels,
+                     n_clusters,
+                     save_path,
                      X=None,
                      global_dist_matrix=None,
                      global_onehot_dist_matrix=None,
                      cluster_indexes=None,
                      percentage2include=0.15):
     '''
-    analyze a given set of clusters, points as onehot encodings
+
     :param df:
-    :param X:
     :param labels:
     :param n_clusters:
     :param save_path:
+    :param X:
+    :param global_dist_matrix:
+    :param global_onehot_dist_matrix:
+    :param cluster_indexes:
+    :param percentage2include:
     :return:
     '''
 
@@ -565,37 +391,6 @@ def analyze_clusters(df,labels,n_clusters,save_path,
     aa_distribution_comparison(variants_list, labels, save_dir=save_path)
 
     return representative_sequences,mutations_df
-def mutual_information():
-    pass
-def silolette_factor():
-    pass
-
-def load_guassian_data():
-    # Set the mean vectors and covariance matrices for each 2D Gaussian distribution
-    mean1 = np.array([0, 0])
-    cov1 = np.array([[1, 0], [0, 1]])
-
-    mean2 = np.array([10, 10])
-    cov2 = np.array([[2, 0], [0, 2]])
-
-    mean3 = np.array([-5, -5])
-    cov3 = np.array([[0.5, 0], [0, 0.5]])
-
-    # Set the number of samples to generate
-    num_samples = 1000
-
-    # Generate samples from the three 2D Gaussian distributions
-    samples1 = np.random.multivariate_normal(mean1, cov1, num_samples)
-    samples2 = np.random.multivariate_normal(mean2, cov2, num_samples)
-    samples3 = np.random.multivariate_normal(mean3, cov3, num_samples)
-
-
-    labels =np.array( [0]*len(samples1) + [1]*len(samples2) + [2]*len(samples3))
-    # Concatenate the samples from all three distributions
-    all_samples = np.concatenate((samples1, samples2, samples3))
-    return all_samples,labels
-
-
 
 def plot_dendrogram(model, **kwargs):
     # Create linkage matrix and then plot the dendrogram
@@ -621,45 +416,6 @@ def plot_dendrogram(model, **kwargs):
     dendrogram(linkage_matrix, **kwargs)
     print(time.time()-start)
 
-def practice_with_dendrograms():
-    X,y= load_guassian_data()
-    fig,ax= plt.subplots()
-
-    colors= ['r','g','b']
-    for i in np.arange(3):
-        X_filter= X[i == y,:]
-        ax.scatter(X_filter[:,0],X_filter[:,1],alpha=0.3,label=f'{i}',c=colors[i])
-
-    ax.set_title('3 guassian distribution')
-    ax.set_xlabel('x1')
-    ax.set_ylabel('x2')
-    fig.legend()
-    fig.savefig(os.path.join('analysis','unit_test','3_guassian_dist.png'))
-
-
-    dist_matrix =cdist(X,X,metric='euclidean')
-
-    clustering_object= AgglomerativeClustering(n_clusters=3, metric='precomputed',
-                                               linkage='average', compute_distances= True)
-
-    predicted_y=clustering_object.fit_predict(dist_matrix)
-
-    fig, ax = plt.subplots()
-    colors = ['r', 'g', 'b']
-    for i in np.arange(3):
-        X_filter = X[i == predicted_y, :]
-        ax.scatter(X_filter[:, 0], X_filter[:, 1], alpha=0.3, label=f'{i}', c=colors[i])
-    ax.set_title('3 guassian distribution-- predicted labels')
-    ax.set_xlabel('x1')
-    ax.set_ylabel('x2')
-    fig.legend()
-    fig.savefig(os.path.join('analysis', 'unit_test', '3_guassian_dist_predicted.png'))
-
-    fig,ax=plt.subplots()
-    plot_dendrogram(clustering_object, ax=ax)
-    ax.set_title('dendrogram')
-    fig.savefig(os.path.join('analysis', 'unit_test', '3_guassian_dist_dendrogram.png'))
-
 
 def greedy_sequence_choice_algorithm(representative_variants,
                                     global_dist_matrix,
@@ -668,21 +424,21 @@ def greedy_sequence_choice_algorithm(representative_variants,
                                      save_path,
                                      labels,
                                      threshold):
+    '''
+    greedy algorithm to choose the
+    :param representative_variants: representative variants of each cluster
+    :param global_dist_matrix: np.array, shape N x N,  the entire distance numpy distance matrix
+                                    from all the sequences in the dataframe (df)
+    :param df: pd.DataFrame() of all the top sequences that come from all the simulated annealing runs
+    :param greedy_down_sample: int, number of sequences to choose , must be less than or equal to
+                                    the number of unique integers in labels array
+    :param save_path: the path to save the chosen sequences
+    :param labels: label each data point in df as a numpy.array
+    :param threshold: the minimum number of sequences to include a cluster in a final result
+    :return: save chosen sequences along with position and Amino Acid distribution to save_path directory
+    '''
 
     print('\n ===== starting greedy approach =====')
-    filter_boolean= []
-    # for column in mutations_df.columns:
-    #     # remove the other column
-    #     if 'other' in column:
-    #         mutations_df= mutations_df.drop(column,axis=1)
-
-
-    # only include clusters which are above a certain threshold
-
-    # =representative_variants[]
-    # for row in mutations_df.itertuples():
-    #     filter_boolean.append(np.any(np.array(row) >=  threshold))
-
 
     #  update 6.20.23 include anything that has a cluster count above a threshold,
     #       not what is defined by the scaffold matrix
@@ -701,11 +457,6 @@ def greedy_sequence_choice_algorithm(representative_variants,
         for j,idxj in enumerate(representative_sequences.index):
             local_dist_matrix.loc[idxi,idxj]=global_dist_matrix[idx_of_rep_variants[i],idx_of_rep_variants[j]]
 
-    # filter down the distance matrix
-    # local_dist_matrix_test = global_dist_matrix[np.array(idx_of_rep_variants)][:, np.array(idx_of_rep_variants)]
-    print('stop')
-
-
     # find starting sequence
 
     chosen = []
@@ -719,8 +470,6 @@ def greedy_sequence_choice_algorithm(representative_variants,
 
     print('chosen: ',chosen)
     print('remaining',remaining)
-
-            # remove from remaining
 
 
 
@@ -774,52 +523,13 @@ def greedy_sequence_choice_algorithm(representative_variants,
 
 
     chosen_sequences.to_csv(os.path.join(save_path,'chosen_sequences.csv'))
-    # initilize remaining representative clusters to be chosen...
-        # while len(list_chosen) < nb_points2choose:
-        # avg_distance = [ ]
-        # for each point in remaining:
-        # tot_distance_point = 0
-        # for each point in list chosen :
-        #
-    # avg_distance_point = tot_distance_point / len(list_chosen)
-    # avg_distance.append(avg_distance_point)
-
-
-
-
-    # filter down the clusters using the cluster matrix ,  then pick a representative
-    # sequence from each of the clusters by filtering down the global distance matrix
-    # and then get filter down the global distance matrix to just the cluster representative
-    # sequences and use that distance matrix in the algorithm
-
-    # assert that the number of sequences that meet the criteria >= nb of sequences your hoping to get
-
-    # choose the sequence with the highest number points in its cluster
-    # for each representative point that is remaining:
-
-
-
-
-
-
-
-    # save all the best mutants chosen
-
-    # do amino acid analysis on them
-
-    # do residue analysis on them
-
-    # plot the distribution of score and cluster number for each selected one
-
-
-    pass
 
 
 
 
 
 def run_cluster_precomputed():
-    run_params = ['rejection_5','only_train_5']
+    run_params = ['rejection_10','only_train_10']
     Precentage2include = [0.05,0.15]
     n_clusters = [10,20,50]
     linkage ='complete'
@@ -842,44 +552,13 @@ def run_cluster_precomputed():
 
     for n_cluster in n_clusters:
         for run_name,percentage2include in zip(run_params,Precentage2include):
-                #     # compute_distances(top_sequences_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
-                #     #                                                           'analysis','top_sequences.csv'),
-                #     #                                   save_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
-                #     #                                                                        'analysis'))
-                #     # dist_matrix_analysis(matrix_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
-                #     #                                                           'analysis','vectorized_blosum_similarity_distance_matrix.npy'), save_path=
-                #     #                                     os.path.join('results', f'3d_{run_name}_mutant_10k_run','analysis'))
-                #                  # )
-                #
-                # eps = 0.4365
 
 
-                #     ## 1)
-                #     # calculated_dist_matrix_onehot(top_sequences_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
-                #     #                                                       'analysis','top_sequences.csv'),
-                #     #                                save_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
-                #     #                                                  'analysis'))
-                #
-                #     # # 2)
-                #     # similarity_matrix_histograms(matrix_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
-                #     #                                                           'analysis','vectorized_blosum_similarity_distance_matrix.npy'),
-                #     #                           save_path=os.path.join('results',f'3d_{run_name}_mutant_10k_run',
-                #     #                                                  'analysis'),
-                #     #                                    top_sequences_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
-                #     #                                                       'analysis','top_sequences.csv'),
-                #     #                              onehot_matrix_path=os.path.join('results',f'3d_{run_name}_mutant_10k_run',
-                #     #                                                  'analysis','onehot_dist_matrix.npy'))
-                #
-                #
-                #
                 clustering_object = AgglomerativeClustering(n_clusters=n_cluster,
                                                             metric='precomputed',
                                                             linkage=linkage,
                                                             compute_distances=True)
-                #     # # clustering_object= DBSCAN(eps=eps,metric='precomputed')
-                #     # clustering_object  = KMedoids(n_clusters=n_clusters,metric='precomputed',random_state=0)
 
-                #     ## make a directory if necessary
                 clustering_directory = os.path.join('results', f'3d_{run_name}_mutant_10k_run',
                                                     f'analysis{reduce_large_set}', save_dir)
                 if not os.path.exists(clustering_directory):
@@ -970,30 +649,107 @@ def run_kmeans_onehot():
     percentage2include=0.05)
 
 
+def preprocessing_for_clustering(run_name):
+    '''
+    how to preprocess the run result to get run the clustering algorithm to select the sequences
+    of interest.
+    1. computes distance matrix for the blosum62 distances
+    2. does analysis on those distances saving the average distance to every other point histogram
+    3. calculates the distance matrix in one hot format
+    :param run_name: name of the run as shown by  f'3d_{run_name}_mutant_10k_run'
+    :return:
+    '''
+
+    start  = time.time()
+    compute_distances(top_sequences_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
+                                                                  'analysis','top_sequences.csv'),
+                                          save_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
+                                                                               'analysis'))
+    second = time.time()
+    print( 'compute distancres time: ',second-  start)
+
+    dist_matrix_analysis(matrix_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
+                                                              'analysis','vectorized_blosum_similarity_distance_matrix.npy'), save_path=
+                                        os.path.join('results', f'3d_{run_name}_mutant_10k_run','analysis'))
+
+    third  = time.time()
+    print('dist matrix analysis: ',third-second)
+    #     ## 1)
+
+    calculated_dist_matrix_onehot(top_sequences_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
+                                                          'analysis','top_sequences.csv'),
+                                   save_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
+                                                     'analysis'))
+
+    print('onehot dist matrix time: ',time.time()-third)
+
+
+
+def combine_into_final_results():
+    runs= ['only_train_5','rejection_5','only_train_10','rejection_10']
+    run_dfs= []
+    for run in runs:
+        run_df = pd.read_csv(os.path.join('results', f'3d_{run}_mutant_10k_run',
+                                        'analysis','agglomerate_complete','blosum62_clusters_20',
+                                          'greedy_down_sample_5_threshold_100',
+                                          'chosen_sequences.csv'))
+
+
+
+        run_df['run_name']=run
+        run_df['best_sequence']=run_df['best_mutant'].apply(lambda x:variant2sequence(x,av_gfp_WT))
+        run_dfs.append(run_df)
+
+    df  = pd.concat(run_dfs,ignore_index=True)
+
+
+    df.to_csv(os.path.join('results','final_chosen_sequences','final_sequences_my_version.csv'))
+
+
+
+    unique_df  = df[['run_name','unique_mutations','unique_residues']].set_index('run_name')
+
+    unique_df = unique_df[::5]
+
+    unique_df.plot.bar()
+    plt.tight_layout()
+    plt.savefig(os.path.join('results','final_chosen_sequences','final_sequences_count.png'))
+
+
+    df= df[['run_name', 'best_sequence', 'best_mutant', 'best_fitness']]
+
+    # best scoring variant
+    train_idx = np.loadtxt(os.path.join('data', 'train_64_variants_avgfp.txt'), dtype=int)
+    data_df = pd.read_csv(os.path.join('data', 'avgfp.csv'))
+    train_df = data_df.iloc[train_idx]
+
+
+    best_train=  train_df.iloc[train_df['score'].argmax()]
+
+
+    best_train_df =  pd.DataFrame(columns=['run_name', 'best_sequence', 'best_mutant', 'best_fitness'],
+                                  data=[['best_train',variant2sequence(best_train['variant'],av_gfp_WT),best_train['variant'],best_train['score']],
+                                         ['wildtype',av_gfp_WT,None,0]])
+
+    final_df = pd.concat([df,best_train_df],ignore_index=True)
+
+
+    for row in final_df.itertuples():
+        assert len(row.best_sequence)==237
+    final_df.to_csv(os.path.join('results','final_chosen_sequences','final_sequences.csv'))
 
 
 
 if __name__ == '__main__':
+    # combine_into_final_results()
+    # run_name  = 'rejection_10'
+    # preprocessing_for_clustering(run_name=run_name)
     # run_kmeans_onehot()
     run_cluster_precomputed()
-    # practice_with_dendrograms()
-#   # print('stop')
-    #
-    #
-    #
-    #
-    #
-    # # dendrogram_clustering_practice()
-    # # runs2include = [run_params[0]]
-    # # for run_name in runs2include:
-    # #     fast_dbscan_clustering(top_sequences_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
-    # #                                                           'analysis','top_sequences.csv'),
-    # #                           save_path=os.path.join('results',f'3d_{run_name}_mutant_10k_run',
-    # #                                                  'dbscan'),
-    # #                           )
-    #
-    #
-    #
+
+
+
+
     # # compute_distance_matrix(top_sequences_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
     # #                                                           'analysis','top_sequences.csv'),
     # #                         save_path=os.path.join('results', f'3d_{run_name}_mutant_10k_run',
@@ -1030,26 +786,3 @@ if __name__ == '__main__':
     #                                                           'analysis','normalized_blosum62_dist_matrix.npy'),
     #                           save_path=os.path.join('results',f'3d_{run_name}_mutant_10k_run',
     #                                                  'analysis','agglomerate'))
-
-
-
-
-
-
-
-
-
-
-
-    #
-    # print(faster_blosum62_distance_normalized([4, 56, 8,4,76,9,7,40,5,4,79,7], [4, 56, 8,6,89,10,7,79,8,6,70,8]))
-    # print(faster_blosum62_distance_normalized([4, 56, 8, 4, 76, 9, 7, 40, 5, 4, 79, 7],
-    #                                           [4, 56, 8,4,76,9,7,40,5,4,79,7])) # s
-    # print(fast_blosum62_distance_normalized([4, 56, 8,4,76,9,7,40,5,4,79,7], [4, 56, 8,6,89,10,7,79,8,6,70,8]))
-        # , save_path, eps=0.5, min_samples=5)
-        # kmeans_clustering_onehot(top_sequences_path=os.path.join('results',f'3d_{run_name}_mutant_10k_run',
-        #                                                          'analysis','top_sequences.csv'),
-        #                          save_path=os.path.join('results',
-        #                                                 f'3d_{run_name}_mutant_10k_run','analysis'))
-
-

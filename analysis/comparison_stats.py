@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 from general_stats import amino_acid_distribution,residue_distribution
-from src.utils import AAs
+from src.utils import AAs,av_gfp_WT
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -49,6 +49,141 @@ def aa_distribution_comparison(variants_list,labels,save_dir=None):
                     dpi=300,
                     bbox_inches='tight')
 
+# def res_distribution_heatmap(variants_list, labels, save_dir=None):
+#     # Create a DataFrame to store the counts
+#     df = pd.DataFrame(index = np.arange(len(av_gfp_WT)))
+#
+#     for label, variants in zip(labels, variants_list):
+#         df[label] = residue_distribution(variants)
+#
+#     # Transpose the DataFrame for better visualization
+#     # res_counts = res_counts.T
+#
+#     # Plotting the heatmap
+#     plt.figure(figsize=(15, 8))
+#     sns.heatmap(df, annot=True, linewidths=.5)
+#
+#     plt.title('Residue Distribution Heatmap for Different Datasets', fontsize=16)
+#     plt.xlabel('Residue', fontsize=12)
+#     plt.ylabel('Dataset', fontsize=12)
+#
+#     if save_dir is not None:
+#         os.makedirs(save_dir, exist_ok=True)
+#         plt.savefig(os.path.join(save_dir, f'residue_distribution_heatmap_{labels}.png'), bbox_inches='tight')
+
+def custom_annot(value):
+    if pd.notna(value) and value != 0:  # Check if not NaN and not equal to 0
+        return str(value)
+    return ''
+
+
+def res_distribution_heatmap(variants_list, labels, label_colors, save_dir=None,fn_name=None):
+    # Create a DataFrame to store the counts
+    df = pd.DataFrame(index=np.arange(len(av_gfp_WT)))
+
+    for label, variants in zip(labels, variants_list):
+        df[label] = residue_distribution(variants)
+
+    df_labels=[]
+    df_markers =[]
+    for i in np.arange(len(av_gfp_WT)):
+        inner_labels=[]
+        inner_markers=[]
+        for j in np.arange(len(labels)):
+            if df.iloc[i,j]==0:
+                inner_labels.append('')
+                inner_markers.append(0)
+            else:
+                inner_markers.append(j+1)
+                inner_labels.append(df.iloc[i,j])
+        df_labels.append(inner_labels)
+        df_markers.append(inner_markers)
+    df_labels = np.array(df_labels).T
+    df_markers =np.array(df_markers).T
+
+    labels_str = df_labels.astype(str)
+    cmap = sns.color_palette(label_colors, as_cmap=True)
+
+    df_final = pd.DataFrame(columns=np.arange(len(av_gfp_WT)),index=labels,data=df_markers)
+    sns.heatmap(df_final, annot=labels_str, fmt='',
+                linewidths=.5, cbar=False, cmap=cmap,annot_kws={"size": 3,"color": "black"})
+
+    # plt.title('', fontsize=16)
+    plt.xlabel('Position')
+    plt.ylabel('Mutant')
+
+    x_ticks = range(0, len(df_final.columns), 5)
+    x_tick_labels = df_final.columns[x_ticks]
+    plt.xticks(x_ticks, x_tick_labels)
+
+    if save_dir is not None:
+        os.makedirs(save_dir, exist_ok=True)
+        if fn_name is not None:
+            pass
+        else:
+
+            fn_name=f'res_dist_heatmap_{labels}.pdf'
+        plt.savefig(os.path.join(save_dir,fn_name), bbox_inches='tight')
+
+
+
+
+def res_distribution_heatmap(variants_list, labels, label_colors, save_dir=None,fn_name=None,pos_num=None):
+    # Create a DataFrame to store the counts
+    df = pd.DataFrame(index=np.arange(len(av_gfp_WT)))
+
+    for label, variants in zip(labels, variants_list):
+        df[label] = residue_distribution(variants)
+
+    df_labels=[]
+    df_markers =[]
+    for i in np.arange(len(av_gfp_WT)):
+        inner_labels=[]
+        inner_markers=[]
+        for j in np.arange(len(labels)):
+            if df.iloc[i,j]==0:
+                inner_labels.append('')
+                inner_markers.append(0)
+            else:
+                inner_markers.append(j+1)
+                if pos_num is None:
+                    inner_labels.append(df.iloc[i,j])
+                else:
+                    inner_labels.append(pos_num[j][i])
+        df_labels.append(inner_labels)
+        df_markers.append(inner_markers)
+    df_labels = np.array(df_labels).T
+    df_markers =np.array(df_markers).T
+
+    labels_str = df_labels.astype(str)
+    cmap = sns.color_palette(label_colors, as_cmap=True)
+
+    df_final = pd.DataFrame(columns=np.arange(len(av_gfp_WT)),index=labels,data=df_markers)
+    sns.heatmap(df_final, annot=labels_str, fmt='',
+                linewidths=.5, cbar=False, cmap=cmap,annot_kws={"size": 3,"color": "black"})
+
+    # plt.title('', fontsize=16)
+    if pos_num is None:
+        plt.ylabel('Mutant')
+    else:
+        plt.ylabel('Bin')
+    plt.xlabel('Position')
+
+
+    x_ticks = range(0, len(df_final.columns), 5)
+    x_tick_labels = df_final.columns[x_ticks]
+    plt.xticks(x_ticks, x_tick_labels)
+
+    if save_dir is not None:
+        os.makedirs(save_dir, exist_ok=True)
+        if fn_name is not None:
+            pass
+        else:
+
+            fn_name=f'res_dist_heatmap_{labels}.pdf'
+        plt.savefig(os.path.join(save_dir,fn_name), bbox_inches='tight')
+
+    # plt.show()
 
 def res_distribution_comparison(variants_list,labels,save_dir=None):
     # this function would take in lists of variants
@@ -70,18 +205,6 @@ def res_distribution_comparison(variants_list,labels,save_dir=None):
     x_tick_labels = res_dist.index[x_ticks]
     ax.set_xticks(x_ticks, x_tick_labels)
 
-    # labels2patches = []
-    # for row in res_dist.iterrows():
-    #     empty=True
-    #     for column in res_dist.columns:
-    #         element = row[1][column]
-    #         if element!=0:
-    #             labels2patches.append(element)
-    #             empty=False
-    #     if empty:
-    #         labels2patches.append(0)
-
-    y_offset =-10
     for bar,label2patch in zip(ax.patches,res_dist.values.T.flatten()):
         if label2patch!=0:
             ax.text(
@@ -172,7 +295,12 @@ if __name__ == '__main__':
     # score_distribution_comparison(scores,labels,save_dir=os.path.join('results','comparisons'))
     # aa_distribution_comparison(variants_list,labels,save_dir=os.path.join('results','comparisons'))
     # unique_distribution_comparison(variants_list,labels,save_dir=os.path.join('results','comparisons'))
-    res_distribution_comparison(variants_list,labels,save_dir=os.path.join('results','comparisons'))
+
+    label_colors = sns.color_palette("coolwarm", n_colors=3, as_cmap=False)
+
+
+    res_distribution_heatmap(variants_list,labels,label_colors)
+    # res_distribution_comparison(variants_list,labels, save_dir=os.path.join('results','comparisons'))
     # such a bad test to write because their is literally no overlap at all between any of the
     # situtations, but that may not be true with clustering so I should figure out that bug.
     # pairwise_overlap(variants_list,labels,save_dir=os.path.join('results','comparisons'))

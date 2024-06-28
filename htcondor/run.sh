@@ -1,21 +1,34 @@
 #!/bin/bash
 
+cp /staging/{chtc_id}/metl.tar.gz ./
 
-# recommended to export the home directory as 'cd' command no longer works
-export HOME=$PWD
+ENVNAME=metl
+# if you need the environment directory to be named something other than the environment name, change this line
+ENVDIR=$ENVNAME
 
-echo "$Cluster"
-echo "$Process"
-echo "$config"
-
-
-echo "Launching $RUN_SCRIPT"
-python3 "$RUN_SCRIPT" @"args/${PROCESS}.txt" --cluster="$CLUSTER" --process="$PROCESS"
-
-
+# these lines handle setting up the environment; you shouldn't have to modify them
+export PATH
+mkdir $ENVDIR
+echo "un taring environment file"
+tar -xzf $ENVNAME.tar.gz -C $ENVDIR
+. $ENVDIR/bin/activate
 
 
-# make sure output files
-# tar -czf "$Cluster"_"$Process".tar.gz ./output
+echo " environment activated "
+
+
+echo "removing environment of interest"
+rm $ENVNAME.tar.gz 
+
+
+tar -xzf code.tar.gz  
+
+
+# process ID needs to go right their
+python src/run.py @${UUID}.txt
+
+
+
+
 
 

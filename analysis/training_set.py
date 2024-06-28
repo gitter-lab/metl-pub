@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import os
 from src.utils import AAs,av_gfp_WT
-from unit_tests.preprocessing_gfp_run import preprocess_train_variants_for_sim_anneal
 import seaborn as sns
 from tqdm import tqdm
 from comparison_stats import res_distribution_comparison
@@ -199,14 +198,26 @@ def make_heat_maps_for_quadrants():
         fig.savefig(os.path.join('data','distributions',f'train_{start}_{end}.png'))
 
 
+def make_residue_maps_for_quadrants():
+    quadrant_name = 'I'
+    comparison_labels  = [ ]
+    for start, end in tqdm([[-np.inf, -1.5], [-1.5, 0], [0, np.inf]]):
+        filtered_df= pd.read_csv(os.path.join('data', 'distributions', f'train_{start}_{end}.csv'))
+        variants_list = []
+        for variant in filtered_df['variant']:
+            variants_list.append(pd.Series([variant]))
+        comparison_labels = np.arange(len(filtered_df['variant']))+len(comparison_labels)
+
+        res_distribution_comparison(variants_list,comparison_labels,os.path.join('data', 'distributions'))
 
 
 if __name__ == '__main__':
-    # analyze_training_set()
-    # amino_acids_in_training_data()
-    number_distribution_in_training_set()
 
-    # quadrant_res_comparison()
+    analyze_training_set()
+    # amino_acids_in_training_data()
+    # number_distribution_in_training_set()
+    # make_residue_maps_for_quadrants()
+    quadrant_res_comparison()
     # analyze_entire_dataset()
 
     # make_heat_maps_for_quadrants()

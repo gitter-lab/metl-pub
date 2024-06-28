@@ -3,7 +3,7 @@ import uuid
 import os
 import numpy as np
 import pandas as pd
-from unit_tests.preprocessing_gfp_run import preprocess_train_variants_for_sim_anneal,preprocess_only_allow_training
+from analysis.preprocessing_gfp_run import preprocess_train_variants_for_sim_anneal,preprocess_only_allow_training
 inputs= ['seq2fitness_file',
          'uuid',
          'wild_type',
@@ -14,9 +14,13 @@ inputs= ['seq2fitness_file',
          'temperature_schedule',
          'number_mutations',
          'mutation_rate',
-         'seed', 'starting_sequence',
-         'parallel', 'AA_constraints', 'results_dir',
-         'split_char', 'save_final']
+         'seed',
+         'starting_sequence',
+         'parallel',
+         'AA_constraints',
+         'results_dir',
+         'split_char',
+         'save_final']
 
 defaults = ['seq2fitness',
             str(uuid.uuid4()),

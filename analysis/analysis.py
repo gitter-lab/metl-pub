@@ -11,16 +11,13 @@ from sklearn.decomposition import PCA
 import seaborn as sns
 import matplotlib.cm as cm
 from src.utils import onehot,variant2sequence,av_gfp_WT
-from unit_tests.preprocessing_gfp_run import preprocess_train_variants_for_sim_anneal
+from preprocessing_gfp_run import preprocess_train_variants_for_sim_anneal
 import torchinfo
 import torchextractor as tx
-import metl
+import metl # extracted from metl-pretrained github repository.
 import torch
 from tqdm import tqdm
 import seaborn as sns
-
-from general_stats import amino_acid_distribution,residue_distribution
-from comparison_stats import res_distribution_comparison,aa_distribution_comparison
 
 def random_turnup():
     '''
@@ -107,16 +104,10 @@ def distribution_with_PCA_onehot(dir='10k_full_base_run'):
     plt.savefig(os.path.join('results','10k_full_base_run','best_sequence_pca.png'))
 
 
-
-
-
-
-
 def threeD_vs_oneD(nb_mutation):
     '''
     this function does the parity plots for the 3d vs 1d models at different rates mutation rates.
-    But these aren't the same mutations crap. Wait they should be because I used the same seed! yes,
-    they 100\% should be the same. Lets check.
+    The models should take in the same seeds.
     :return:
     '''
     df1=pd.read_csv(os.path.join('results','3d_vs_1d',f'1d_{nb_mutation}.csv')).set_index('current_mutant')
@@ -239,7 +230,6 @@ def pca_with_melt_embeddings(dir='10k_full_base_run',embedding='global_pooling_e
 def kmeans_with_metl_embeddings(dir='10k_full_base_run',embedding='global_pooling_embedding'):
     df = pd.read_csv(os.path.join('results', dir, 'top_sequences.csv'))
     X = np.load(os.path.join('results', dir, f'{embedding}.npy'))
-
 
 def extrapolation_1d_model_sim_anneal():
     '''
