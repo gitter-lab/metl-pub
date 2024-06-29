@@ -80,7 +80,7 @@ transfer_output_remaps= "$(uuid).csv = results/<your_run_name>/$(uuid).csv"
 
 queue uuid from <argument.txt file here>
 ```
-4. Replace the location of your conda environment. To make same conda environment as below, use `conda_pack`. (Step 3 in this guide: [https://chtc.cs.wisc.edu/uw-research-computing/conda-installation](URL)) Make sure to name your environment `metl`, or replace it on `run.sh`. If you are working on CHTC at UW-Madison, place tar'd conda environment on shared file system `staging` and replace below line with your `chtc_id`. 
+4. Replace the location of your conda environment. To make same conda environment as below, use `conda_pack`. (Step 3 in this guide: <https://chtc.cs.wisc.edu/uw-research-computing/conda-installation>) Make sure to name your environment `metl`, or replace it on `run.sh`. If you are working on CHTC at UW-Madison, place tar'd conda environment on shared file system `staging` and replace below line with your `chtc_id`. 
 
 ```shell
 # run.sh
