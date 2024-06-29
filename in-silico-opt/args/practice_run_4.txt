@@ -1,0 +1,12 @@
+--seq2fitness_file
+seq2fitness
+--uuid
+practice_run_4
+--wild_type
+skgeelftgvvpilveldgdvnghkfsvsgegegdatygkltlkficttgklpvpwptlvttlsygvqcfsrypdhmkqhdffksampegyvqertiffkddgnyktraevkfegdtlvnrielkgidfkedgnilghkleynynshnvyimadkqkngikvnfkirhniedgsvqladhyqqntpigdgpvllpdnhylstqsalskdpnekrdhmvllefvtaagithgmdelyk
+--split_char
+,
+--seed
+124
+--steps
+1000

@@ -1,0 +1,3 @@
+all mutants: 251
+unique mutants: 209
+ratio of total singles(4503): 0.05574061736620031
