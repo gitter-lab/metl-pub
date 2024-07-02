@@ -1,0 +1,50 @@
+universe = vanilla
+
+# check 
+JOB_NAME=eve
+
+log =logs/$(JOB_NAME)_$(Cluster)_$(Process).log
+
+# check 
+executable= run_inference.sh 
+#arguments = $(Process)
+output = logs/$(JOB_NAME)_$(Cluster)_$(Process).out
+error = logs/$(JOB_NAME)_$(Cluster)_$(Process).err
+
+# check 
+#Requirements = (Target.HasCHTCStaging == true) && ((OpSysMajorVer == 7) || (OpSysMajorVer == 8))
+requirements = (Target.HasCHTCStaging == true) && (OpSysMajorVer == 7 || OpSysMajorVer == 8)
+
+
+# Specify that HTCondor should transfer files to and from the
+#  computer where each job runs. The last of these lines *would* be
+#  used if there were any other files needed for the executable to use.
+
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+# transfer_output_files = 
+# check 
+transfer_input_files = EVE_GFP_AEQVI.tar.gz, data/GFP_AEQVI_$(Process).csv
+transfer_output_remaps= "results_GFP_AEQVI_$(Process).csv = results/results_GFP_AEQVI_$(Process).csv"
+#check 
+# did you retar all input files? 
+
+
+# Tell HTCondor what amount of compute resources
+#  each job will need on the computer where it runs.
+
+# check 
+request_cpus = 1
+request_memory = 20GB
+request_disk = 10GB  
+ 
+# Tell HTCondor what amount of compute resources
+#  each job will need on the computer where it runs.
+#check 
+request_gpus = 1
++WantGPULab = true
++GPUJobLength = "medium"
+accounting_group = BMI_Gitter
+require_gpus = (DriverVersion >= 11.0) && (Capability > 3.5)
+queue 5
