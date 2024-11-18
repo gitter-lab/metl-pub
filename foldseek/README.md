@@ -18,8 +18,8 @@ FoldSeek `easy-cluster` was run with default settings (see below) except for the
 # foldseek easy-cluster data/pdb_files/ metl_0.9 tmp_0.9 -c 0.9 > foldseek_0.9.out
 ```
 
-Coverage threshold 0.5 generated 130 clusters from the 159 input structures.
-Coverage threshold 0.9 generated 151 clusters.
+Coverage threshold 0.5 generated 131 clusters from the 160 input structures.
+Coverage threshold 0.9 generated 152 clusters.
 The FoldSeek documentation describes the [output](https://github.com/steineggerlab/foldseek/tree/9-427df8a?tab=readme-ov-file#output-cluster) file formats.
 
 ## Default settings
