@@ -36,7 +36,7 @@ def check_if_clusters_overlap_with_test_dms(multiple_pdb_cluster,datasets,fasta_
         for pdb_key in multiple_pdb_cluster.keys():
             if dataset_pdb_id in multiple_pdb_cluster[pdb_key]:
                 print(f'\nfound cluster for dms id: {dataset_key}')
-                print(f'>{dataset_pdb_id}\n{datasets[dataset_key]["wt_aa"]}')
+                print(f'>{dataset_pdb_id}\n{fasta_dict[dataset_pdb_id]}')
                 for cluster_pdb_id in multiple_pdb_cluster[pdb_key]:
                     if cluster_pdb_id==dataset_pdb_id:
                         pass
@@ -80,7 +80,7 @@ def main(fn,fasta_fn):
 
 
 if __name__ == '__main__':
-    for file in ['foldseek/metl_0.9_cluster.tsv','foldseek/metl_mmseqs_0.9_cluster.tsv']:
+    for file in ['foldseek/metl_0.9_cluster.tsv','foldseek/metl_mmseqs_0.9_cluster.tsv','foldseek/metl_0.5_cluster.tsv','foldseek/metl_mmseqs_0.5_cluster.tsv']:
         main(file,'foldseek/metl_all_seqs.fasta')
 
 
