@@ -50,6 +50,36 @@ Coverage threshold 0.5 generated 155 clusters from the 160 input structures.
 Coverage threshold 0.9 generated 157 clusters.
 The output file formats are the same as the Foldseek outputs.
 
+## Post-clustering analysis
+
+The Foldseek and MMseqs2 cluster analysis was done using the functions in the `cluster.py` script.
+The script post-processes the output cluster file such as `foldseek/metl_0.9_cluster.tsv` where the filename indicates the clustering tool and coverage threshold.
+The script only prints clusters that correspond to proteins from the deep mutational scanning datasets (given by `data/dms_data/datasets.yml`).
+The output is `foldseek/cluster_analysis.out`. 
+
+Example output: 
+```
+----------------------------------------------------------------------------------------------------
+cluster:foldseek/metl_0.9_cluster.tsv
+
+found cluster for dms id: grb2-abundance
+>AF-P62993-F1-model_v4_trunc_p
+TYVQALFDFDPQEDGELGFRRGDFIHVMDNSDPNWWKGACHGQTGMFPRNYVTPVN
+>1jo8_A_p
+PWATAEYDYDAAEDNELTFVENDKIINIEFVDDDWWLGELEKDGSKGLFPSNYVSLGN
+```
+
+Here `AF-P62993-F1-model_v4_trunc_p` is the wildtype pdb file for the `grb2-abundance` dataset. The pdb file `1jo8_A_p` (in METL-Global training set) was found to have structural similarity with sensisitivy 0.9 to the  `grb2-abundance` pdb. 
+
+**Note**: The datasets `dlg4-2022-abundance` and `dlg4-2022-binding` (which are the same wildtype with different assays), contain three pdb files which are truncated at different lengths and not in the METL-Global training set. Specifically, `6qji_p`,`6qji_p_trunc`, and `6qji_p_trunc_2022`.
+
+The script `cluster.py` run using the following dependencies: 
+```
+biopython 1.78
+python 3.9.17
+pandas 1.5.3
+```
+
 ## RCSB alignment
 Four of the structures used for METL-Local modeling had Foldseek matches at coverage threshold 0.5.
 The [RCSB alignment](https://www.rcsb.org/alignment) website was used with the TM-align alignment method to align the similar structure from METL-Global pretraining and the structure used with METL-Local.
@@ -299,29 +329,4 @@ expert:
  --sort-results INT               Sort results: 0: no sorting, 1: sort by E-value (Alignment) or seq.id. (Hamming) [0]
  --write-lookup INT               write .lookup file containing mapping from internal id, fasta id and file number [0]
 ```
-## Foldseek and mmseqs cluster analysis (`cluster.py`)
 
-The foldseek and mmseqs cluster analysis was done using the functions in `cluster.py` script. The function of the script is to post process files the output cluster files `foldseek/metl_0.9_cluster.tsv` (foldseek clusters with sensitivity set to 0.9), `foldseek/metl_0.5_cluster.tsv` (foldseek clusters with sensitivity set to 0.5), `metl_mmseqs_0.5_cluster.tsv` (mmseqs clsuters with sensitivity set to 0.5), and `metl_mmseqs_0.9_cluster.tsv` (mmseqs clsuters with sensitivity set to 0.9). The script only prints to console clusters which have a sequence tested in the metl manuscript (given by `data/dms_data/datasets.yml`). The output of is given here: `foldseek/cluster_analysi.out`. 
-
-Here is an example output: 
-```
-----------------------------------------------------------------------------------------------------
-cluster:foldseek/metl_0.9_cluster.tsv
-
-found cluster for dms id: grb2-abundance
->AF-P62993-F1-model_v4_trunc_p
-TYVQALFDFDPQEDGELGFRRGDFIHVMDNSDPNWWKGACHGQTGMFPRNYVTPVN
->1jo8_A_p
-PWATAEYDYDAAEDNELTFVENDKIINIEFVDDDWWLGELEKDGSKGLFPSNYVSLGN
-```
-
-Here `AF-P62993-F1-model_v4_trunc_p` is the wildtype pdb file for the `grb2-abundance` dataset. The pdb file `1jo8_A_p` (in METL-Global training set) was found to have structural similarity with sensisitivy 0.9 to the  `grb2-abundance` pdb. 
-
-**Note**: The datasets `dlg4-2022-abundance` and `dlg4-2022-binding` (which are the same wildtype with different assays), contain three pdb files which are truncated at different lengths and not in the METL-Global training set. Specifically, `6qji_p`,`6qji_p_trunc`, and `6qji_p_trunc_2022`.
-
-The script `cluster.py` run using the following dependencies: 
-```
-biopython 1.78
-python 3.9.17
-pandas 1.5.3
-```
