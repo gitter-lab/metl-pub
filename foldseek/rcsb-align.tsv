@@ -1,0 +1,9 @@
+Dataset	Entry	Chain	RMSD	TM-score	Identity	Aligned Residues	Sequence Length	Modeled Residues
+DLG4	6qji_p_trunc_2022.pdb	A	-	-	-	-	84	84
+DLG4	1g9o_A_p.pdb	A	1.79	0.87	27%	80	91	91
+GRB2	AF-P62993-F1-model_v4_trunc_p.pdb	A	-	-	-	-	56	56
+GRB2	1jo8_A_p.pdb	A	1.16	0.9	39%	55	58	58
+GRB2	AF-P62993-F1-model_v4_trunc_p.pdb	A	-	-	-	-	56	56
+GRB2	1i1j_remod_p.pdb	A	1.34	0.86	23%	56	108	108
+TEM-1	AF-Q6SJ61-F1-model_v4_p.pdb	A	-	-	-	-	286	286
+TEM-1	1bsg_p.pdb	A	1.9	0.85	39%	246	266	266

@@ -50,6 +50,11 @@ Coverage threshold 0.5 generated 155 clusters from the 160 input structures.
 Coverage threshold 0.9 generated 157 clusters.
 The output file formats are the same as the Foldseek outputs.
 
+## RCSB alignment
+Four of the structures used for METL-Local modeling had Foldseek matches at coverage threshold 0.5.
+The [RCSB alignment](https://www.rcsb.org/alignment) website was used with the TM-align alignment method to align the similar structure from METL-Global pretraining and the structure used with METL-Local.
+Images of the aligned structures and a table of the alignment statistics (`rcsb-align.tsv`) were saved.
+
 ## Foldseek default settings
 ```
 # foldseek easy-cluster --help
