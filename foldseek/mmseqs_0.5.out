@@ -1,0 +1,574 @@
+easy-cluster foldseek/metl_all_seqs.fasta metl_mmseqs_0.5 tmp_0.5 -c 0.5 
+
+MMseqs Version:                     	15.6f452
+Substitution matrix                 	aa:blosum62.out,nucl:nucleotide.out
+Seed substitution matrix            	aa:VTML80.out,nucl:nucleotide.out
+Sensitivity                         	4
+k-mer length                        	0
+Target search mode                  	0
+k-score                             	seq:2147483647,prof:2147483647
+Alphabet size                       	aa:21,nucl:5
+Max sequence length                 	65535
+Max results per query               	20
+Split database                      	0
+Split mode                          	2
+Split memory limit                  	0
+Coverage threshold                  	0.5
+Coverage mode                       	0
+Compositional bias                  	1
+Compositional bias                  	1
+Diagonal scoring                    	true
+Exact k-mer matching                	0
+Mask residues                       	1
+Mask residues probability           	0.9
+Mask lower case residues            	0
+Minimum diagonal score              	15
+Selected taxa                       	
+Include identical seq. id.          	false
+Spaced k-mers                       	1
+Preload mode                        	0
+Pseudo count a                      	substitution:1.100,context:1.400
+Pseudo count b                      	substitution:4.100,context:5.800
+Spaced k-mer pattern                	
+Local temporary path                	
+Threads                             	8
+Compressed                          	0
+Verbosity                           	3
+Add backtrace                       	false
+Alignment mode                      	3
+Alignment mode                      	0
+Allow wrapped scoring               	false
+E-value threshold                   	0.001
+Seq. id. threshold                  	0
+Min alignment length                	0
+Seq. id. mode                       	0
+Alternative alignments              	0
+Max reject                          	2147483647
+Max accept                          	2147483647
+Score bias                          	0
+Realign hits                        	false
+Realign score bias                  	-0.2
+Realign max seqs                    	2147483647
+Correlation score weight            	0
+Gap open cost                       	aa:11,nucl:5
+Gap extension cost                  	aa:1,nucl:2
+Zdrop                               	40
+Rescore mode                        	0
+Remove hits by seq. id. and coverage	false
+Sort results                        	0
+Cluster mode                        	0
+Max connected component depth       	1000
+Similarity type                     	2
+Weight file name                    	
+Cluster Weight threshold            	0.9
+Single step clustering              	false
+Cascaded clustering steps           	3
+Cluster reassign                    	false
+Remove temporary files              	true
+Force restart with latest tmp       	false
+MPI runner                          	
+k-mers per sequence                 	21
+Scale k-mers per sequence           	aa:0.000,nucl:0.200
+Adjust k-mer length                 	false
+Shift hash                          	67
+Include only extendable             	false
+Skip repeating k-mers               	false
+Database type                       	0
+Shuffle input database              	true
+Createdb mode                       	1
+Write lookup file                   	0
+Offset of numeric ids               	0
+
+createdb foldseek/metl_all_seqs.fasta tmp_0.5/10626967074651609804/input --dbtype 0 --shuffle 1 --createdb-mode 1 --write-lookup 0 --id-offset 0 --compressed 0 -v 3 
+
+Shuffle database cannot be combined with --createdb-mode 0
+We recompute with --shuffle 0
+Converting sequences
+[
+Time for merging to input_h: 0h 0m 0s 10ms
+Time for merging to input: 0h 0m 0s 10ms
+Database type: Aminoacid
+Time for processing: 0h 0m 0s 58ms
+Create directory tmp_0.5/10626967074651609804/clu_tmp
+cluster tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu tmp_0.5/10626967074651609804/clu_tmp --max-seqs 20 -c 0.5 --spaced-kmer-mode 1 --alignment-mode 3 -e 0.001 --remove-tmp-files 1 
+
+Set cluster sensitivity to -s 6.000000
+Set cluster mode SET COVER
+Set cluster iterations to 3
+linclust tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust --cluster-mode 0 --max-iterations 1000 --similarity-type 2 --threads 8 --compressed 0 -v 3 --cluster-weight-threshold 0.9 --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' -a 0 --alignment-mode 3 --alignment-output-mode 0 --wrapped-scoring 0 -e 0.001 --min-seq-id 0 --min-aln-len 0 --seq-id-mode 0 --alt-ali 0 -c 0.5 --cov-mode 0 --max-seq-len 65535 --comp-bias-corr 1 --comp-bias-corr-scale 1 --max-rejected 2147483647 --max-accept 2147483647 --add-self-matches 0 --db-load-mode 0 --pca substitution:1.100,context:1.400 --pcb substitution:4.100,context:5.800 --score-bias 0 --realign 0 --realign-score-bias -0.2 --realign-max-seqs 2147483647 --corr-score-weight 0 --gap-open aa:11,nucl:5 --gap-extend aa:1,nucl:2 --zdrop 40 --alph-size aa:13,nucl:5 --kmer-per-seq 21 --spaced-kmer-mode 1 --kmer-per-seq-scale aa:0.000,nucl:0.200 --adjust-kmer-len 0 --mask 0 --mask-prob 0.9 --mask-lower-case 0 -k 0 --hash-shift 67 --split-memory-limit 0 --include-only-extendable 0 --ignore-multi-kmer 0 --rescore-mode 0 --filter-hits 0 --sort-results 0 --remove-tmp-files 1 --force-reuse 0 
+
+kmermatcher tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' --alph-size aa:13,nucl:5 --min-seq-id 0 --kmer-per-seq 21 --spaced-kmer-mode 1 --kmer-per-seq-scale aa:0.000,nucl:0.200 --adjust-kmer-len 0 --mask 0 --mask-prob 0.9 --mask-lower-case 0 --cov-mode 0 -k 0 -c 0.5 --max-seq-len 65535 --hash-shift 67 --split-memory-limit 0 --include-only-extendable 0 --ignore-multi-kmer 0 --threads 8 --compressed 0 -v 3 --cluster-weight-threshold 0.9 
+
+kmermatcher tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' --alph-size aa:13,nucl:5 --min-seq-id 0 --kmer-per-seq 21 --spaced-kmer-mode 1 --kmer-per-seq-scale aa:0.000,nucl:0.200 --adjust-kmer-len 0 --mask 0 --mask-prob 0.9 --mask-lower-case 0 --cov-mode 0 -k 0 -c 0.5 --max-seq-len 65535 --hash-shift 67 --split-memory-limit 0 --include-only-extendable 0 --ignore-multi-kmer 0 --threads 8 --compressed 0 -v 3 --cluster-weight-threshold 0.9 
+
+Database size: 160 type: Aminoacid
+Reduced amino acid alphabet: (A S T) (C) (D B N) (E Q Z) (F Y) (G) (H) (I V) (K R) (L J M) (P) (W) (X) 
+
+Generate k-mers list for 1 split
+[=================================================================] 160 0s 15ms
+Sort kmer 0h 0m 0s 0ms
+Sort by rep. sequence 0h 0m 0s 0ms
+Time for fill: 0h 0m 0s 0ms
+Time for merging to pref: 0h 0m 0s 14ms
+Time for processing: 0h 0m 0s 69ms
+rescorediagonal tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_rescore1 --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' --rescore-mode 0 --wrapped-scoring 0 --filter-hits 0 -e 0.001 -c 0.5 -a 0 --cov-mode 0 --min-seq-id 0.5 --min-aln-len 0 --seq-id-mode 0 --add-self-matches 0 --sort-results 0 --db-load-mode 0 --threads 8 --compressed 0 -v 3 
+
+[==========================================================] =160 ===0s 10ms
+===Time for merging to pref_rescore1: 0h 0m 0s 35ms
+Time for processing: 0h 0m 0s 144ms
+clust tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_rescore1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pre_clust --cluster-mode 0 --max-iterations 1000 --similarity-type 2 --threads 8 --compressed 0 -v 3 --cluster-weight-threshold 0.9 
+
+Clustering mode: Set Cover
+[=================================================================] 160 0s 14ms
+Sort entries
+Find missing connections
+Found 3 new connections.
+Reconstruct initial order
+[=================================================================] 160 0s 10ms
+Add missing connections
+[=================================================================] 160 0s 6ms
+
+Time for read in: 0h 0m 0s 64ms
+Total time: 0h 0m 0s 70ms
+
+Size of the sequence database: 160
+Size of the alignment database: 160
+Number of clusters: 157
+
+Writing results 0h 0m 0s 0ms
+Time for merging to pre_clust: 0h 0m 0s 16ms
+Time for processing: 0h 0m 0s 122ms
+createsubdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/order_redundancy tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/input_step_redundancy -v 3 --subdb-mode 1 
+
+Time for merging to input_step_redundancy: 0h 0m 0s 10ms
+Time for processing: 0h 0m 0s 54ms
+createsubdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/order_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_filter1 -v 3 --subdb-mode 1 
+
+Time for merging to pref_filter1: 0h 0m 0s 14ms
+Time for processing: 0h 0m 0s 45ms
+filterdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_filter1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_filter2 --filter-file tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/order_redundancy --threads 8 --compressed 0 -v 3 
+
+Filtering using file(s)
+[=================================================================] 157 0s 10ms
+Time for merging to pref_filter2: 0h 0m 0s 40ms
+Time for processing: 0h 0m 0s 138ms
+rescorediagonal tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_filter2 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_rescore2 --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' --rescore-mode 1 --wrapped-scoring 0 --filter-hits 1 -e 0.001 -c 0.5 -a 0 --cov-mode 0 --min-seq-id 0 --min-aln-len 0 --seq-id-mode 0 --add-self-matches 0 --sort-results 0 --db-load-mode 0 --threads 8 --compressed 0 -v 3 
+
+Can not find any score per column for coverage 0.500000 and sequence identity 0.000000. No hit will be filtered.
+[=================================================================] 157 0s 14ms
+Time for merging to pref_rescore2: 0h 0m 0s 62ms
+Time for processing: 0h 0m 0s 284ms
+align tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_rescore2 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/aln --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' -a 0 --alignment-mode 3 --alignment-output-mode 0 --wrapped-scoring 0 -e 0.001 --min-seq-id 0 --min-aln-len 0 --seq-id-mode 0 --alt-ali 0 -c 0.5 --cov-mode 0 --max-seq-len 65535 --comp-bias-corr 1 --comp-bias-corr-scale 1 --max-rejected 2147483647 --max-accept 2147483647 --add-self-matches 0 --db-load-mode 0 --pca substitution:1.100,context:1.400 --pcb substitution:4.100,context:5.800 --score-bias 0 --realign 0 --realign-score-bias -0.2 --realign-max-seqs 2147483647 --corr-score-weight 0 --gap-open aa:11,nucl:5 --gap-extend aa:1,nucl:2 --zdrop 40 --threads 8 --compressed 0 -v 3 
+
+Compute score, coverage and sequence identity
+Query database size: 157 type: Aminoacid
+Target database size: 157 type: Aminoacid
+Calculation of alignments
+[=================================================================] 157 0s 25ms
+Time for merging to aln: 0h 0m 0s 38ms
+157 alignments calculated
+157 sequence pairs passed the thresholds (1.000000 of overall calculated)
+1.000000 hits per query sequence
+Time for processing: 0h 0m 0s 214ms
+clust tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/aln tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/clust --cluster-mode 0 --max-iterations 1000 --similarity-type 2 --threads 8 --compressed 0 -v 3 --cluster-weight-threshold 0.9 
+
+Clustering mode: Set Cover
+=[================================================================] 157 0s 72ms
+Sort entries
+Find missing connections
+Found 0 new connections.
+Reconstruct initial order
+[=================================================================] 157 0s 32ms
+Add missing connections
+[=================================================================] 157 0s 15ms
+
+Time for read in: 0h 0m 0s 216ms
+Total time: 0h 0m 0s 229ms
+
+Size of the sequence database: 157
+Size of the alignment database: 157
+Number of clusters: 157
+
+Writing results 0h 0m 0s 0ms
+Time for merging to clust: 0h 0m 0s 44ms
+Time for processing: 0h 0m 0s 359ms
+mergeclusters tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pre_clust tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/clust --threads 8 --compressed 0 -v 3 
+
+Clustering step 1
+[=================================================================] 157 0s 16ms
+Clustering step 2
+[=================================================================] 157 0s 48ms
+Write merged clustering
+[=================================================================] 160 0s 98ms
+Time for merging to clu_redundancy: 0h 0m 0s 78ms
+Time for processing: 0h 0m 0s 273ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_filter1 -v 3 
+
+Time for processing: 0h 0m 0s 18ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref -v 3 
+
+Time for processing: 0h 0m 0s 12ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_rescore1 -v 3 
+
+Time for processing: 0h 0m 0s 75ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pre_clust -v 3 
+
+Time for processing: 0h 0m 0s 6ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/input_step_redundancy -v 3 
+
+Time for processing: 0h 0m 0s 10ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/input_step_redundancy_h -v 3 
+
+Time for processing: 0h 0m 0s 7ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_filter2 -v 3 
+
+Time for processing: 0h 0m 0s 20ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/pref_rescore2 -v 3 
+
+Time for processing: 0h 0m 0s 19ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/aln -v 3 
+
+Time for processing: 0h 0m 0s 17ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/linclust/6802829078791501664/clust -v 3 
+
+Time for processing: 0h 0m 0s 4ms
+createsubdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_redundancy tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step_redundancy -v 3 --subdb-mode 1 
+
+Time for merging to input_step_redundancy: 0h 0m 0s 14ms
+Time for processing: 0h 0m 0s 118ms
+prefilter tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/pref_step0 --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' --seed-sub-mat 'aa:VTML80.out,nucl:nucleotide.out' -s 1 -k 0 --target-search-mode 0 --k-score seq:2147483647,prof:2147483647 --alph-size aa:21,nucl:5 --max-seq-len 65535 --max-seqs 20 --split 0 --split-mode 2 --split-memory-limit 0 -c 0.5 --cov-mode 0 --comp-bias-corr 0 --comp-bias-corr-scale 1 --diag-score 0 --exact-kmer-matching 0 --mask 1 --mask-prob 0.9 --mask-lower-case 0 --min-ungapped-score 0 --add-self-matches 0 --spaced-kmer-mode 1 --db-load-mode 0 --pca substitution:1.100,context:1.400 --pcb substitution:4.100,context:5.800 --threads 8 --compressed 0 -v 3 
+
+Query database size: 157 type: Aminoacid
+Estimated memory consumption: 978M
+Target database size: 157 type: Aminoacid
+Index table k-mer threshold: 154 at k-mer size 6 
+Index table: counting k-mers
+[=================================================================] 157 0s 15ms
+Index table: Masked residues: 99
+Index table: fill
+[=================================================================] 157 0s 19ms
+Index statistics
+Entries:          10865
+DB size:          488 MB
+Avg k-mer size:   0.000170
+Top 10 k-mers
+    PDMDAA	2
+    FMAKFA	2
+    FLHWNA	2
+    HPLPVA	2
+    DISTWA	2
+    FEQAEC	2
+    VRLGKC	2
+    DKSLKC	2
+    HDGNDD	2
+    DGLFGD	2
+Time for index table init: 0h 0m 0s 404ms
+Process prefiltering step 1 of 1
+
+k-mer similarity threshold: 154
+Starting prefiltering scores calculation (step 1 of 1)
+Query db start 1 to 157
+Target db start 1 to 157
+[==============================================================] 157 =0s 15ms
+==
+2.186557 k-mers per position
+70 DB matches per sequence
+0 overflows
+1 sequences passed prefiltering per query sequence
+1 median result list length
+0 sequences with 0 size result lists
+Time for merging to pref_step0: 0h 0m 0s 38ms
+Time for processing: 0h 0m 1s 210ms
+align tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/pref_step0 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/aln_step0 --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' -a 0 --alignment-mode 3 --alignment-output-mode 0 --wrapped-scoring 0 -e 0.001 --min-seq-id 0 --min-aln-len 0 --seq-id-mode 0 --alt-ali 0 -c 0.5 --cov-mode 0 --max-seq-len 65535 --comp-bias-corr 0 --comp-bias-corr-scale 1 --max-rejected 2147483647 --max-accept 2147483647 --add-self-matches 0 --db-load-mode 0 --pca substitution:1.100,context:1.400 --pcb substitution:4.100,context:5.800 --score-bias 0 --realign 0 --realign-score-bias -0.2 --realign-max-seqs 2147483647 --corr-score-weight 0 --gap-open aa:11,nucl:5 --gap-extend aa:1,nucl:2 --zdrop 40 --threads 8 --compressed 0 -v 3 
+
+Compute score, coverage and sequence identity
+Query database size: 157 type: Aminoacid
+Target database size: 157 type: Aminoacid
+Calculation of alignments
+[=================================================================] 157 0s 11ms
+Time for merging to aln_step0: 0h 0m 0s 39ms
+159 alignments calculated
+159 sequence pairs passed the thresholds (1.000000 of overall calculated)
+1.012739 hits per query sequence
+Time for processing: 0h 0m 0s 153ms
+clust tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/aln_step0 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step0 --cluster-mode 0 --max-iterations 1000 --similarity-type 2 --threads 8 --compressed 0 -v 3 --cluster-weight-threshold 0.9 
+
+Clustering mode: Set Cover
+=[================================================================] 157 0s 13ms
+Sort entries
+Find missing connections
+Found 0 new connections.
+Reconstruct initial order
+[=================================================================] 157 0s 9ms
+Add missing connections
+[=================================================================] 157 0s 7ms
+
+Time for read in: 0h 0m 0s 66ms
+Total time: 0h 0m 0s 70ms
+
+Size of the sequence database: 157
+Size of the alignment database: 157
+Number of clusters: 156
+
+Writing results 0h 0m 0s 0ms
+Time for merging to clu_step0: 0h 0m 0s 12ms
+Time for processing: 0h 0m 0s 124ms
+createsubdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step0 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step1 -v 3 --subdb-mode 1 
+
+Time for merging to input_step1: 0h 0m 0s 12ms
+Time for processing: 0h 0m 0s 68ms
+prefilter tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/pref_step1 --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' --seed-sub-mat 'aa:VTML80.out,nucl:nucleotide.out' -s 3.5 -k 0 --target-search-mode 0 --k-score seq:2147483647,prof:2147483647 --alph-size aa:21,nucl:5 --max-seq-len 65535 --max-seqs 20 --split 0 --split-mode 2 --split-memory-limit 0 -c 0.5 --cov-mode 0 --comp-bias-corr 1 --comp-bias-corr-scale 1 --diag-score 1 --exact-kmer-matching 0 --mask 1 --mask-prob 0.9 --mask-lower-case 0 --min-ungapped-score 15 --add-self-matches 0 --spaced-kmer-mode 1 --db-load-mode 0 --pca substitution:1.100,context:1.400 --pcb substitution:4.100,context:5.800 --threads 8 --compressed 0 -v 3 
+
+Query database size: 156 type: Aminoacid
+Estimated memory consumption: 978M
+Target database size: 156 type: Aminoacid
+Index table k-mer threshold: 131 at k-mer size 6 
+Index table: counting k-mers
+[=================================================================] 156 0s 18ms
+Index table: Masked residues: 99
+Index table: fill
+[=================================================================] 156 0s 13ms
+Index statistics
+Entries:          21814
+DB size:          488 MB
+Avg k-mer size:   0.000341
+Top 10 k-mers
+    PDMDAA	2
+    MISSAA	2
+    AAPLDA	2
+    FMAKFA	2
+    KTGSIA	2
+    KSFALA	2
+    GHALLA	2
+    FLHWNA	2
+    SYEERA	2
+    IFDETA	2
+Time for index table init: 0h 0m 0s 434ms
+Process prefiltering step 1 of 1
+
+k-mer similarity threshold: 131
+Starting prefiltering scores calculation (step 1 of 1)
+Query db start 1 to 156
+Target db start 1 to 156
+[=================================================================] 156 0s 39ms
+
+45.947468 k-mers per position
+138 DB matches per sequence
+0 overflows
+1 sequences passed prefiltering per query sequence
+1 median result list length
+0 sequences with 0 size result lists
+Time for merging to pref_step1: 0h 0m 0s 37ms
+Time for processing: 0h 0m 1s 637ms
+align tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/pref_step1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/aln_step1 --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' -a 0 --alignment-mode 3 --alignment-output-mode 0 --wrapped-scoring 0 -e 0.001 --min-seq-id 0 --min-aln-len 0 --seq-id-mode 0 --alt-ali 0 -c 0.5 --cov-mode 0 --max-seq-len 65535 --comp-bias-corr 1 --comp-bias-corr-scale 1 --max-rejected 2147483647 --max-accept 2147483647 --add-self-matches 0 --db-load-mode 0 --pca substitution:1.100,context:1.400 --pcb substitution:4.100,context:5.800 --score-bias 0 --realign 0 --realign-score-bias -0.2 --realign-max-seqs 2147483647 --corr-score-weight 0 --gap-open aa:11,nucl:5 --gap-extend aa:1,nucl:2 --zdrop 40 --threads 8 --compressed 0 -v 3 
+
+Compute score, coverage and sequence identity
+Query database size: 156 type: Aminoacid
+Target database size: 156 type: Aminoacid
+Calculation of alignments
+[=================================================================] 156 0s 20ms
+Time for merging to aln_step1: 0h 0m 0s 34ms
+157 alignments calculated
+156 sequence pairs passed the thresholds (0.993631 of overall calculated)
+1.000000 hits per query sequence
+Time for processing: 0h 0m 0s 174ms
+clust tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/aln_step1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step1 --cluster-mode 0 --max-iterations 1000 --similarity-type 2 --threads 8 --compressed 0 -v 3 --cluster-weight-threshold 0.9 
+
+Clustering mode: Set Cover
+[=================================================================] 156 0s 12ms
+Sort entries
+Find missing connections
+Found 0 new connections.
+Reconstruct initial order
+[=================================================================] 156 0s 11ms
+Add missing connections
+[=================================================================] 156 0s 8ms
+
+Time for read in: 0h 0m 0s 68ms
+Total time: 0h 0m 0s 74ms
+
+Size of the sequence database: 156
+Size of the alignment database: 156
+Number of clusters: 156
+
+Writing results 0h 0m 0s 0ms
+Time for merging to clu_step1: 0h 0m 0s 14ms
+Time for processing: 0h 0m 0s 132ms
+createsubdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step2 -v 3 --subdb-mode 1 
+
+Time for merging to input_step2: 0h 0m 0s 12ms
+Time for processing: 0h 0m 0s 71ms
+prefilter tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step2 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step2 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/pref_step2 --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' --seed-sub-mat 'aa:VTML80.out,nucl:nucleotide.out' -s 6 -k 0 --target-search-mode 0 --k-score seq:2147483647,prof:2147483647 --alph-size aa:21,nucl:5 --max-seq-len 65535 --max-seqs 20 --split 0 --split-mode 2 --split-memory-limit 0 -c 0.5 --cov-mode 0 --comp-bias-corr 1 --comp-bias-corr-scale 1 --diag-score 1 --exact-kmer-matching 0 --mask 1 --mask-prob 0.9 --mask-lower-case 0 --min-ungapped-score 15 --add-self-matches 0 --spaced-kmer-mode 1 --db-load-mode 0 --pca substitution:1.100,context:1.400 --pcb substitution:4.100,context:5.800 --threads 8 --compressed 0 -v 3 
+
+Query database size: 156 type: Aminoacid
+Estimated memory consumption: 978M
+Target database size: 156 type: Aminoacid
+Index table k-mer threshold: 109 at k-mer size 6 
+Index table: counting k-mers
+[=================================================================] 156 0s 14ms
+Index table: Masked residues: 99
+Index table: fill
+[=================================================================] 156 0s 15ms
+Index statistics
+Entries:          22169
+DB size:          488 MB
+Avg k-mer size:   0.000346
+Top 10 k-mers
+    IESAAA	2
+    PDMDAA	2
+    MISSAA	2
+    AAPLDA	2
+    FMAKFA	2
+    KTGSIA	2
+    KSFALA	2
+    GHALLA	2
+    FLHWNA	2
+    SYEERA	2
+Time for index table init: 0h 0m 0s 343ms
+Process prefiltering step 1 of 1
+
+k-mer similarity threshold: 109
+Starting prefiltering scores calculation (step 1 of 1)
+Query db start 1 to 156
+Target db start 1 to 156
+[================================================================] 156 0s 275ms
+=
+488.235219 k-mers per position
+167 DB matches per sequence
+0 overflows
+1 sequences passed prefiltering per query sequence
+1 median result list length
+0 sequences with 0 size result lists
+Time for merging to pref_step2: 0h 0m 0s 53ms
+Time for processing: 0h 0m 1s 455ms
+align tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step2 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step2 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/pref_step2 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/aln_step2 --sub-mat 'aa:blosum62.out,nucl:nucleotide.out' -a 0 --alignment-mode 3 --alignment-output-mode 0 --wrapped-scoring 0 -e 0.001 --min-seq-id 0 --min-aln-len 0 --seq-id-mode 0 --alt-ali 0 -c 0.5 --cov-mode 0 --max-seq-len 65535 --comp-bias-corr 1 --comp-bias-corr-scale 1 --max-rejected 2147483647 --max-accept 2147483647 --add-self-matches 0 --db-load-mode 0 --pca substitution:1.100,context:1.400 --pcb substitution:4.100,context:5.800 --score-bias 0 --realign 0 --realign-score-bias -0.2 --realign-max-seqs 2147483647 --corr-score-weight 0 --gap-open aa:11,nucl:5 --gap-extend aa:1,nucl:2 --zdrop 40 --threads 8 --compressed 0 -v 3 
+
+Compute score, coverage and sequence identity
+Query database size: 156 type: Aminoacid
+Target database size: 156 type: Aminoacid
+Calculation of alignments
+[=================================================================] 156 0s 94ms
+Time for merging to aln_step2: 0h 0m 0s 42ms
+193 alignments calculated
+157 sequence pairs passed the thresholds (0.813471 of overall calculated)
+1.006410 hits per query sequence
+Time for processing: 0h 0m 0s 268ms
+clust tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step2 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/aln_step2 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step2 --cluster-mode 0 --max-iterations 1000 --similarity-type 2 --threads 8 --compressed 0 -v 3 --cluster-weight-threshold 0.9 
+
+Clustering mode: Set Cover
+=[================================================================] 156 0s 12ms
+Sort entries
+Find missing connections
+Found 1 new connections.
+Reconstruct initial order
+[=================================================================] 156 0s 15ms
+Add missing connections
+[=================================================================] 156 0s 11ms
+
+Time for read in: 0h 0m 0s 151ms
+Total time: 0h 0m 0s 160ms
+
+Size of the sequence database: 156
+Size of the alignment database: 156
+Number of clusters: 155
+
+Writing results 0h 0m 0s 0ms
+Time for merging to clu_step2: 0h 0m 0s 15ms
+Time for processing: 0h 0m 0s 211ms
+mergeclusters tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_redundancy tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step0 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step1 tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step2 --threads 8 --compressed 0 -v 3 
+
+Clustering step 1
+[=================================================================] 157 0s 9ms
+Clustering step 2
+[=================================================================] 156 0s 27ms
+Clustering step 3
+[=================================================================] 156 0s 45ms
+Clustering step 4
+[=================================================================] 155 0s 62ms
+Write merged clustering
+[=================================================================] 160 0s 93ms
+Time for merging to clu: 0h 0m 0s 28ms
+Time for processing: 0h 0m 0s 169ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_redundancy -v 3 
+
+Time for processing: 0h 0m 0s 14ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step_redundancy -v 3 
+
+Time for processing: 0h 0m 0s 8ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step_redundancy_h -v 3 
+
+Time for processing: 0h 0m 0s 7ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/pref_step0 -v 3 
+
+Time for processing: 0h 0m 0s 16ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/aln_step0 -v 3 
+
+Time for processing: 0h 0m 0s 12ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step0 -v 3 
+
+Time for processing: 0h 0m 0s 6ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/pref_step1 -v 3 
+
+Time for processing: 0h 0m 0s 14ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/aln_step1 -v 3 
+
+Time for processing: 0h 0m 0s 19ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step1 -v 3 
+
+Time for processing: 0h 0m 0s 6ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/pref_step2 -v 3 
+
+Time for processing: 0h 0m 0s 18ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/aln_step2 -v 3 
+
+Time for processing: 0h 0m 0s 15ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/clu_step2 -v 3 
+
+Time for processing: 0h 0m 0s 6ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step1 -v 3 
+
+Time for processing: 0h 0m 0s 7ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step1_h -v 3 
+
+Time for processing: 0h 0m 0s 9ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step2 -v 3 
+
+Time for processing: 0h 0m 0s 9ms
+rmdb tmp_0.5/10626967074651609804/clu_tmp/12680497924831912964/input_step2_h -v 3 
+
+Time for processing: 0h 0m 0s 9ms
+createtsv tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu tmp_0.5/10626967074651609804/cluster.tsv --threads 8 -v 3 
+
+Time for merging to cluster.tsv: 0h 0m 0s 40ms
+Time for processing: 0h 0m 0s 107ms
+result2repseq tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu tmp_0.5/10626967074651609804/clu_rep --db-load-mode 0 --compressed 0 --threads 8 -v 3 
+
+[=================================================================] 155 0s 10ms
+Time for merging to clu_rep: 0h 0m 0s 47ms
+Time for processing: 0h 0m 0s 138ms
+result2flat tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu_rep tmp_0.5/10626967074651609804/rep_seq.fasta --use-fasta-header -v 3 
+
+Time for processing: 0h 0m 0s 37ms
+createseqfiledb tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu tmp_0.5/10626967074651609804/clu_seqs --threads 8 -v 3 
+
+[=================================================================] 155 0s 10ms
+Time for merging to clu_seqs: 0h 0m 0s 34ms
+Time for processing: 0h 0m 0s 122ms
+result2flat tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/input tmp_0.5/10626967074651609804/clu_seqs tmp_0.5/10626967074651609804/all_seqs.fasta -v 3 
+
+Time for processing: 0h 0m 0s 46ms
+rmdb tmp_0.5/10626967074651609804/input -v 3 
+
+Time for processing: 0h 0m 0s 13ms
+rmdb tmp_0.5/10626967074651609804/input_h -v 3 
+
+Time for processing: 0h 0m 0s 8ms
+rmdb tmp_0.5/10626967074651609804/clu_seqs -v 3 
+
+Time for processing: 0h 0m 0s 13ms
+rmdb tmp_0.5/10626967074651609804/clu_rep -v 3 
+
+Time for processing: 0h 0m 0s 6ms
+rmdb tmp_0.5/10626967074651609804/clu -v 3 
+
+Time for processing: 0h 0m 0s 18ms
