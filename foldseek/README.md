@@ -69,7 +69,7 @@ TYVQALFDFDPQEDGELGFRRGDFIHVMDNSDPNWWKGACHGQTGMFPRNYVTPVN
 PWATAEYDYDAAEDNELTFVENDKIINIEFVDDDWWLGELEKDGSKGLFPSNYVSLGN
 ```
 
-Here `AF-P62993-F1-model_v4_trunc_p` is the wildtype pdb file for the `grb2-abundance` dataset. The pdb file `1jo8_A_p` (in METL-Global training set) was found to have structural similarity with sensisitivy 0.9 to the  `grb2-abundance` pdb. 
+Here `AF-P62993-F1-model_v4_trunc_p` is the wildtype pdb file for the `grb2-abundance` dataset. The pdb file `1jo8_A_p` (in METL-Global training set) was found to have structural similarity with sensitivity 0.9 to the  `grb2-abundance` pdb. 
 
 **Note**: The datasets `dlg4-2022-abundance` and `dlg4-2022-binding` (which are the same wildtype with different assays), contain three pdb files which are truncated at different lengths and not in the METL-Global training set. Specifically, `6qji_p`,`6qji_p_trunc`, and `6qji_p_trunc_2022`.
 
