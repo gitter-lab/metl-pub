@@ -1,0 +1,9 @@
+show cartoon, all
+show sticks, (resi 176+27+197+231+227)
+color red, resi 176
+color blue, resi 27
+color orange, resi 197
+color purple, resi 231
+color yellow, resi 227
+set cartoon_transparency, 0.5, not (resi 176+27+197+231+227)
+set stick_transparency, 0.5, not (resi 176+27+197+231+227)
